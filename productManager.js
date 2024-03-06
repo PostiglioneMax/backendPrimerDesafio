@@ -35,6 +35,9 @@ class ProductManager {
         this.products.push(newProduct);
         this.saveToFile();
         console.log("Producto agregado:", newProduct);
+        // socket io para cuando se agregue
+        io.emit("productAdded", newProduct);
+
         return newProduct;
     }
 
@@ -77,6 +80,8 @@ class ProductManager {
             const deletedProduct = this.products.splice(index, 1);
             this.saveToFile();
             console.log("Producto eliminado:", deletedProduct);
+            io.emit("productDeleted", id);
+
             return deletedProduct;
         } else {
             throw new Error("Producto no encontrado");
