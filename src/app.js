@@ -5,6 +5,7 @@ import path from "path";
 import handlebars from express-handlebars
 import vistasRouter from "./routes/views.router.js";
 import Server from 'socket.io';
+import mongoose from "mongoose";
 
 
 const app = express();
@@ -55,5 +56,14 @@ app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
 });
 
+const connect =async()=>{
+  try {
+    await mongoose.connect("mongodb+srv://postisama22:maxi123@cluster0.hjmvuac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    console.log("DB Online!!...")
+  } catch (error) {
+    console.log("Fallo la conexion, detalle:", error.message)
+  }
+}
 
+connect()
 

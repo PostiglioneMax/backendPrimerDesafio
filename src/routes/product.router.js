@@ -5,23 +5,26 @@ const router = express.Router();
 const productManager = new ProductManager("productos.json");
 
 // Obtener todos los productos
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
     const limit = req.query.limit;
-    const products = productManager.getProducts();
-
-    if (limit) {
-        const limitedProducts = products.slice(0, parseInt(limit, 10));
-        res.json({ products: limitedProducts });
-    } else {
-        res.json({ products });
+    try {
+        const products = await productManager.getProducts();
+        if (limit) {
+            const limitedProducts = products.slice(0, parseInt(limit, 10));
+            res.json({ products: limitedProducts });
+        } else {
+            res.json({ products });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
 // Obtener un producto por ID
-router.get("/:pid", (req, res) => {
+router.get("/:pid", async (req, res) => {
     const productId = parseInt(req.params.pid, 10);
     try {
-        const product = productManager.getProductById(productId);
+        const product = await productManager.getProductById(productId);
         res.json({ product });
     } catch (error) {
         res.status(404).json({ error: error.message });
@@ -29,9 +32,9 @@ router.get("/:pid", (req, res) => {
 });
 
 // Agregar un nuevo producto
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
     try {
-        const newProduct = productManager.addProduct(req.body);
+        const newProduct = await productManager.addProduct(req.body);
         res.json({ product: newProduct });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -39,10 +42,10 @@ router.post("/", (req, res) => {
 });
 
 // Actualizar un producto por ID
-router.put("/:pid", (req, res) => {
+router.put("/:pid", async (req, res) => {
     const productId = parseInt(req.params.pid, 10);
     try {
-        const updatedProduct = productManager.updateProduct(productId, req.body);
+        const updatedProduct = await productManager.updateProduct(productId, req.body);
         res.json({ product: updatedProduct });
     } catch (error) {
         res.status(404).json({ error: error.message });
@@ -50,10 +53,10 @@ router.put("/:pid", (req, res) => {
 });
 
 // Eliminar un producto por ID
-router.delete("/:pid", (req, res) => {
+router.delete("/:pid", async (req, res) => {
     const productId = parseInt(req.params.pid, 10);
     try {
-        const deletedProduct = productManager.deleteProduct(productId);
+        const deletedProduct = await productManager.deleteProduct(productId);
         res.json({ product: deletedProduct });
     } catch (error) {
         res.status(404).json({ error: error.message });

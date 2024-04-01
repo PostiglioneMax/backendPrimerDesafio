@@ -1,9 +1,11 @@
 import fs from "fs";
+import { modeloProduct } from "./src/dao/models/product.modelo.js";
 
+modeloProduct;
 class ProductManager {
     constructor(path) {
-        this.path = path;
-        this.loadFromFile();
+        //        this.path = path;
+        //        this.loadFromFile();
     }
 
     addProduct(productData) {
@@ -41,9 +43,10 @@ class ProductManager {
         return newProduct;
     }
 
-    getProducts() {
-        this.loadFromFile();
-        return this.products;
+    async getProducts() {
+        //    this.loadFromFile();
+        //    return this.products;
+        return await modeloProduct.find();
     }
 
     getProductById(id) {
