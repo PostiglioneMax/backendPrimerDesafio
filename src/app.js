@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 
 
 const app = express();
-const port = 8080;
+const port = 3000;
 
 //handlebars
 app.engine("handlebars", handlebars.engine());
@@ -55,10 +55,10 @@ io.on('connection', (socket) => {
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
 });
-
+const dbName= BaseDeDatos
 const connect =async()=>{
   try {
-    await mongoose.connect("mongodb+srv://postisama22:maxi123@cluster0.hjmvuac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    await mongoose.connect("mongodb+srv://postisama22:maxi123@cluster0.hjmvuac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",{dbName:BaseDeDatos})
     console.log("DB Online!!...")
   } catch (error) {
     console.log("Fallo la conexion, detalle:", error.message)

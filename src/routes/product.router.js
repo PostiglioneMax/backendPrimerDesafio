@@ -8,13 +8,22 @@ const productManager = new ProductManager("productos.json");
 router.get("/", async (req, res) => {
     const limit = req.query.limit;
     try {
-        const products = await productManager.getProducts();
-        if (limit) {
-            const limitedProducts = products.slice(0, parseInt(limit, 10));
-            res.json({ products: limitedProducts });
-        } else {
-            res.json({ products });
-        }
+        // Llama al método getAllProducts del product manager
+        const result = await productManager.getAllProducts(req.query);
+
+        // formato
+        res.json({
+            status: "success",
+            payload: result.payload,
+            totalPages: result.totalPages,
+            prevPage: result.prevPage,
+            nextPage: result.nextPage,
+            page: result.page,
+            hasPrevPage: result.hasPrevPage,
+            hasNextPage: result.hasNextPage,
+            prevLink: result.prevLink,
+            nextLink: result.nextLink,
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -31,7 +40,7 @@ router.get("/:pid", async (req, res) => {
     }
 });
 
-// Agregar un nuevo producto
+// Agregr un nuevo producto
 router.post("/", async (req, res) => {
     try {
         const newProduct = await productManager.addProduct(req.body);
@@ -41,7 +50,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-// Actualizar un producto por ID
+// Actualizar un produto por ID
 router.put("/:pid", async (req, res) => {
     const productId = parseInt(req.params.pid, 10);
     try {
@@ -52,7 +61,7 @@ router.put("/:pid", async (req, res) => {
     }
 });
 
-// Eliminar un producto por ID
+// Elininar un producto por ID
 router.delete("/:pid", async (req, res) => {
     const productId = parseInt(req.params.pid, 10);
     try {
