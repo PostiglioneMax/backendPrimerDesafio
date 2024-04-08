@@ -1,4 +1,4 @@
-import Cart from "../models/Cart.js";
+import Cart from "../models/cartModel.js";
 
 const cartManager = {
     // Obtener todos los carritos

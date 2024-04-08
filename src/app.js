@@ -2,11 +2,10 @@ import express from "express";
 import productsRouter from "./routes/product.router.js";
 import cartRouter from "./routes/cart.router.js";
 import path from "path";
-import handlebars from express-handlebars
+import handlebars from "express-handlebars";
 import vistasRouter from "./routes/views.router.js";
-import Server from 'socket.io';
+import Server from "socket.io";
 import mongoose from "mongoose";
-
 
 const app = express();
 const port = 3000;
@@ -32,38 +31,40 @@ app.use("/api/carts", cartRouter);
 app.use("/", vistasRouter);
 
 // Socket.io - Manejar conexiones
-io.on('connection', (socket) => {
-    console.log('Cliente conectado');
-  
+io.on("connection", (socket) => {
+    console.log("Cliente conectado");
+
     // Websocket
 
     const io = new Server(server);
-    socket.on('productAdded', (product) => {
-      io.emit('updateProducts', productManager.getProducts());
+    socket.on("productAdded", (product) => {
+        io.emit("updateProducts", productManager.getProducts());
     });
-  
-    socket.on('productDeleted', (productId) => {
-      io.emit('updateProducts', productManager.getProducts());
+
+    socket.on("productDeleted", (productId) => {
+        io.emit("updateProducts", productManager.getProducts());
     });
-  
-    socket.on('disconnect', () => {
-      console.log('Cliente desconectado');
+
+    socket.on("disconnect", () => {
+        console.log("Cliente desconectado");
     });
-  });
-  
+});
 
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
 });
-const dbName= BaseDeDatos
-const connect =async()=>{
-  try {
-    await mongoose.connect("mongodb+srv://postisama22:maxi123@cluster0.hjmvuac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",{dbName:BaseDeDatos})
-    console.log("DB Online!!...")
-  } catch (error) {
-    console.log("Fallo la conexion, detalle:", error.message)
-  }
-}
 
-connect()
+const connect = async () => {
+    try {
+        await mongoose.connect("mongodb+srv://postisama22:maxi123@cluster0.hjmvuac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
+            dbName: BasedeDatos,
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+        console.log("DB Online!!...");
+    } catch (error) {
+        console.log("Fallo la conexion, detalle:", error.message);
+    }
+};
 
+connect();
