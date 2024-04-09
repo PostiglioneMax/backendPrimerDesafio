@@ -1,6 +1,6 @@
 import fs from "fs";
-import { modeloProduct } from "./src/dao/models/product.modelo.js";
-import Product from "./src/dao/models/product.modelo.js";
+import { modeloProduct } from "./models/product.modelo.js";
+import Product from "./models/product.modelo.js";
 
 // modeloProduct;
 class ProductManager {

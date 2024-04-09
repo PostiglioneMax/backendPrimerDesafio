@@ -57,7 +57,7 @@ app.listen(port, () => {
 const connect = async () => {
     try {
         await mongoose.connect("mongodb+srv://postisama22:maxi123@cluster0.hjmvuac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
-            dbName: BasedeDatos,
+            dbName: "BasedeDatos",
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
