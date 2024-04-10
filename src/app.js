@@ -2,12 +2,16 @@ import express from "express";
 import productsRouter from "./routes/product.router.js";
 import cartRouter from "./routes/cart.router.js";
 import path from "path";
+import http from "http";
 import handlebars from "express-handlebars";
 import vistasRouter from "./routes/views.router.js";
-import Server from "socket.io";
+import { Server } from "socket.io";
 import mongoose from "mongoose";
+import __dirname from "./utils.js";
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 const port = 3000;
 
 //handlebars
@@ -30,13 +34,17 @@ app.use("/api/carts", cartRouter);
 // Ruta para la vista home
 app.use("/", vistasRouter);
 
+app.listen(port, () => {
+    console.log(`Servidor escuchando en http://localhost:${port}`);
+});
+
 // Socket.io - Manejar conexiones
 io.on("connection", (socket) => {
     console.log("Cliente conectado");
 
     // Websocket
 
-    const io = new Server(server);
+    const io = new Server(Server);
     socket.on("productAdded", (product) => {
         io.emit("updateProducts", productManager.getProducts());
     });
@@ -48,10 +56,6 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         console.log("Cliente desconectado");
     });
-});
-
-app.listen(port, () => {
-    console.log(`Servidor escuchando en http://localhost:${port}`);
 });
 
 const connect = async () => {

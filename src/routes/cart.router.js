@@ -2,14 +2,14 @@ import express from "express";
 import CartManager from "../dao/cartManager.js";
 
 const router = express.Router();
-const cartManager = new CartManager("carts.json");
+const myCartManager = new CartManager("carts.json");
 
 // Eliminar un producto del carrito
 router.delete("/:cid/products/:pid", async (req, res) => {
     const cartId = parseInt(req.params.cid, 10);
     const productId = parseInt(req.params.pid, 10);
     try {
-        const updatedCart = await cartManager.removeProductFromCart(cartId, productId);
+        const updatedCart = await myCartManager.removeProductFromCart(cartId, productId);
         res.json({ cart: updatedCart });
     } catch (error) {
         res.status(404).json({ error: error.message });
@@ -20,7 +20,7 @@ router.delete("/:cid/products/:pid", async (req, res) => {
 router.put("/:cid", async (req, res) => {
     const cartId = parseInt(req.params.cid, 10);
     try {
-        const updatedCart = await cartManager.updateCart(cartId, req.body.products);
+        const updatedCart = await myCartManager.updateCart(cartId, req.body.products);
         res.json({ cart: updatedCart });
     } catch (error) {
         res.status(404).json({ error: error.message });
@@ -33,7 +33,7 @@ router.put("/:cid/products/:pid", async (req, res) => {
     const productId = parseInt(req.params.pid, 10);
     const quantity = req.body.quantity;
     try {
-        const updatedCart = await cartManager.updateProductQuantity(cartId, productId, quantity);
+        const updatedCart = await myCartManager.updateProductQuantity(cartId, productId, quantity);
         res.json({ cart: updatedCart });
     } catch (error) {
         res.status(404).json({ error: error.message });
@@ -44,7 +44,7 @@ router.put("/:cid/products/:pid", async (req, res) => {
 router.delete("/:cid", async (req, res) => {
     const cartId = parseInt(req.params.cid, 10);
     try {
-        const deletedCart = await cartManager.deleteCart(cartId);
+        const deletedCart = await myCartManager.deleteCart(cartId);
         res.json({ cart: deletedCart });
     } catch (error) {
         res.status(404).json({ error: error.message });

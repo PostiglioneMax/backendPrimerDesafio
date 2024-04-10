@@ -1,8 +1,9 @@
-import modeloCart from ".cart.modelo.js";
+import modeloCart from "./models/cart.modelo.js";
 
-const cartManager = {
+class CartManager {
+    constructor() {}
     // Obtener todos los carritos
-    getAllCarts: async (req, res) => {
+    async getAllCarts(req, res) {
         try {
             const carts = await modeloCart.find().populate("products");
 
@@ -10,10 +11,10 @@ const cartManager = {
         } catch (error) {
             res.status(500).json({ status: "error", error: error.message });
         }
-    },
+    }
 
     // Obtener un carrito por su ID
-    getCartById: async (req, res) => {
+    async getCartById(req, res) {
         try {
             const { cid } = req.params;
             const cart = await modeloCart.findById(cid).populate("products");
@@ -26,10 +27,10 @@ const cartManager = {
         } catch (error) {
             res.status(500).json({ status: "error", error: error.message });
         }
-    },
+    }
 
     // Agregar un nuevo carrito
-    addCart: async (req, res) => {
+    async addCart(req, res) {
         try {
             const newCart = new Cart({ products: [] });
             await newCart.save();
@@ -38,10 +39,10 @@ const cartManager = {
         } catch (error) {
             res.status(500).json({ status: "error", error: error.message });
         }
-    },
+    }
 
     // Actualizar un carrito por su ID
-    updateCart: async (req, res) => {
+    async updateCart(req, res) {
         try {
             const { cid } = req.params;
             const { products } = req.body;
@@ -56,10 +57,10 @@ const cartManager = {
         } catch (error) {
             res.status(500).json({ status: "error", error: error.message });
         }
-    },
+    }
 
     // Agregar un producto a un carrito
-    addProductToCart: async (req, res) => {
+    async addProductToCart(req, res) {
         try {
             const { cid, pid } = req.params;
             const { quantity } = req.body;
@@ -87,10 +88,10 @@ const cartManager = {
         } catch (error) {
             res.status(500).json({ status: "error", error: error.message });
         }
-    },
+    }
 
     // Eliminar un producto de un carrito
-    removeProductFromCart: async (req, res) => {
+    async removeProductFromCart(req, res) {
         try {
             const { cid, pid } = req.params;
 
@@ -109,10 +110,10 @@ const cartManager = {
         } catch (error) {
             res.status(500).json({ status: "error", error: error.message });
         }
-    },
+    }
 
     // Eliminar todos los productos de un carrito
-    removeAllProductsFromCart: async (req, res) => {
+    async removeAllProductsFromCart(req, res) {
         try {
             const { cid } = req.params;
 
@@ -129,7 +130,7 @@ const cartManager = {
         } catch (error) {
             res.status(500).json({ status: "error", error: error.message });
         }
-    },
-};
+    }
+}
 
-export default cartManager;
+export default CartManager;
