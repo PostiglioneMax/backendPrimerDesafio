@@ -1,10 +1,10 @@
-import Cart from "../models/cartModel.js";
+import modeloCart from ".cart.modelo.js";
 
 const cartManager = {
     // Obtener todos los carritos
     getAllCarts: async (req, res) => {
         try {
-            const carts = await Cart.find().populate("products");
+            const carts = await modeloCart.find().populate("products");
 
             res.json({ status: "success", payload: carts });
         } catch (error) {
@@ -16,7 +16,7 @@ const cartManager = {
     getCartById: async (req, res) => {
         try {
             const { cid } = req.params;
-            const cart = await Cart.findById(cid).populate("products");
+            const cart = await modeloCart.findById(cid).populate("products");
 
             if (!cart) {
                 return res.status(404).json({ status: "error", message: "Carrito no encontrado" });
@@ -46,7 +46,7 @@ const cartManager = {
             const { cid } = req.params;
             const { products } = req.body;
 
-            const updatedCart = await Cart.findByIdAndUpdate(cid, { products }, { new: true }).populate("products");
+            const updatedCart = await modeloCart.findByIdAndUpdate(cid, { products }, { new: true }).populate("products");
 
             if (!updatedCart) {
                 return res.status(404).json({ status: "error", message: "Carrito no encontrado" });
@@ -64,14 +64,14 @@ const cartManager = {
             const { cid, pid } = req.params;
             const { quantity } = req.body;
 
-            const cart = await Cart.findById(cid);
+            const cart = await modeloCart.findById(cid);
 
             if (!cart) {
                 return res.status(404).json({ status: "error", message: "Carrito no encontrado" });
             }
 
             // Verificar si el producto ya está en el carrito
-            const existingProductIndex = cart.products.findIndex((item) => item.product.equals(pid));
+            const existingProductIndex = modeloCart.products.findIndex((item) => item.product.equals(pid));
 
             if (existingProductIndex !== -1) {
                 // Si el producto ya está en el carrito, incrementar la cantidad
@@ -94,7 +94,7 @@ const cartManager = {
         try {
             const { cid, pid } = req.params;
 
-            const cart = await Cart.findById(cid);
+            const cart = await modeloCart.findById(cid);
 
             if (!cart) {
                 return res.status(404).json({ status: "error", message: "Carrito no encontrado" });
@@ -116,7 +116,7 @@ const cartManager = {
         try {
             const { cid } = req.params;
 
-            const cart = await Cart.findById(cid);
+            const cart = await modeloCart.findById(cid);
 
             if (!cart) {
                 return res.status(404).json({ status: "error", message: "Carrito no encontrado" });

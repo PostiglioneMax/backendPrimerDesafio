@@ -1,6 +1,5 @@
 import fs from "fs";
 import { modeloProduct } from "./models/product.modelo.js";
-import Product from "./models/product.modelo.js";
 
 // modeloProduct;
 class ProductManager {
@@ -126,7 +125,7 @@ const productManager = {
                 skip: (parseInt(page) - 1) * parseInt(limit),
             };
 
-            let productsQuery = Product.find();
+            let productsQuery = modeloProduct.find();
 
             if (category) {
                 productsQuery = productsQuery.where("category").equals(category);
@@ -141,7 +140,7 @@ const productManager = {
             }
 
             const products = await productsQuery.exec();
-            const totalProducts = await Product.countDocuments();
+            const totalProducts = await modeloProduct.countDocuments();
 
             const totalPages = Math.ceil(totalProducts / limit);
             const hasPrevPage = page > 1;
@@ -171,7 +170,7 @@ const productManager = {
     getProductById: async (req, res) => {
         try {
             const { pid } = req.params;
-            const product = await Product.findById(pid);
+            const product = await modeloProduct.findById(pid);
 
             if (!product) {
                 return res.status(404).json({ status: "error", message: "Producto no encontrado" });
@@ -221,7 +220,7 @@ const productManager = {
             if (category) updatedFields.category = category;
             if (availability) updatedFields.availability = availability;
 
-            const updatedProduct = await Product.findByIdAndUpdate(pid, updatedFields, { new: true });
+            const updatedProduct = await modeloProduct.findByIdAndUpdate(pid, updatedFields, { new: true });
 
             if (!updatedProduct) {
                 return res.status(404).json({ status: "error", message: "Producto no encontrado" });
@@ -237,7 +236,7 @@ const productManager = {
     deleteProduct: async (req, res) => {
         try {
             const { pid } = req.params;
-            const deletedProduct = await Product.findByIdAndDelete(pid);
+            const deletedProduct = await modeloProduct.findByIdAndDelete(pid);
 
             if (!deletedProduct) {
                 return res.status(404).json({ status: "error", message: "Producto no encontrado" });
