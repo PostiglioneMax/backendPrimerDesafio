@@ -1,26 +1,27 @@
 import express from "express";
-import ProductManager from "../dao/productManager.js";
+import ProductManagerMongo from "../dao/productManager.js";
 import CartManager from "../dao/cartManager.js";
 
 const router = express.Router();
-const productManager = new ProductManager("productos.json");
+const productManager = new ProductManagerMongo("productos.json");
 const cartManager = new CartManager("carts.json");
 
 // Ruta para la vista home
 router.get("/", async (req, res) => {
     try {
         const products = await productManager.getAllProducts(req.query);
+        //res.status(201).send("Producto agregado al carrito exitosamente");
         res.render("home", { products });
     } catch (error) {
-        res.status(500).send("Error al cargar los productos");
-    }
+        console.error("Error al obtener datos:", error);
+        res.status(500).json({ status: "error", error: "Error al obtener datos" });    }
 });
 
 // Ruta para la vista de todos los productos con paginación
 router.get("/products", async (req, res) => {
     try {
-        const products = await productManager.getAllProducts(req.query);
-        res.render("products", { products });
+        const products = await productManager.getProducts(req.query);
+        res.render("home", { products });
     } catch (error) {
         res.status(500).send("Error al cargar los productos");
     }
@@ -31,6 +32,7 @@ router.get("/products/:pid", async (req, res) => {
     const productId = parseInt(req.params.pid, 10);
     try {
         const product = await productManager.getProductById(productId);
+        res.status(200).send("Producto filtrado al carrito exitosamente");
         res.render("productDetail", { product });
     } catch (error) {
         res.status(404).send("Producto no encontrado");

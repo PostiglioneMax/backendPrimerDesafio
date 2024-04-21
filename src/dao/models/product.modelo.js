@@ -6,7 +6,11 @@ const productSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     category: { type: String, required: true },
     availability: { type: Boolean, default: true },
-});
+},
+{
+    timestamps:true, strict:false
+}
+);
 
 export const modeloProduct = mongoose.model("Product", productSchema);
 

@@ -1,74 +1,78 @@
-import express from "express";
-import ProductManager from "../dao/productManager.js";
+import express from 'express';
+import ProductManagerMongo from '../dao/productManager.js';
+
 
 const router = express.Router();
-const productManager = new ProductManager("productos.json");
+const productManager = new ProductManagerMongo();
 
 // Obtener todos los productos
-router.get("/", async (req, res) => {
-    const limit = req.query.limit;
+router.get('/', async (req, res) => {
     try {
-        // Llama al método getAllProducts del product manager
-        const result = await productManager.getAllProducts(req.query);
-
-        // formato
-        res.json({
-            status: "success",
-            payload: result.payload,
-            totalPages: result.totalPages,
-            prevPage: result.prevPage,
-            nextPage: result.nextPage,
-            page: result.page,
-            hasPrevPage: result.hasPrevPage,
-            hasNextPage: result.hasNextPage,
-            prevLink: result.prevLink,
-            nextLink: result.nextLink,
-        });
+        const products = await productManager.getProducts();
+        console.log(products);
+        res.status(200).json({ status: 'success', payload: {products} });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ status: 'error', error: 'Error al obtener productos' });
+    }
+});
+
+// Obtener todos los productos con paginación, filtros, etc.
+router.get('/all', async (req, res) => {
+    try {
+        const products = await productManager.getAllProducts(req.query);
+        res.status(200).json({ status: 'success', payload: products });
+    } catch (error) {
+        res.status(500).json({ status: 'error', error: 'Error al obtener productos' });
     }
 });
 
 // Obtener un producto por ID
-router.get("/:pid", async (req, res) => {
-    const productId = parseInt(req.params.pid, 10);
+router.get('/:pid', async (req, res) => {
     try {
-        const product = await productManager.getProductById(productId);
-        res.json({ product });
+        const product = await productManager.getProductById(req);
+        res.status(200).json({ status: 'success', payload: product });
     } catch (error) {
-        res.status(404).json({ error: error.message });
+        res.status(404).json({ status: 'error', error: 'Producto no encontrado' });
     }
 });
 
-// Agregr un nuevo producto
-router.post("/", async (req, res) => {
+// Agregar un nuevo producto
+router.post('/', async (req, res) => {
+    let { title, description, price, category } = req.body;
+    if (!title || !description || !price || !category) {
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(400).json({ error: "faltan datos obligatorios" });
+    }
+
     try {
-        const newProduct = await productManager.addProduct(req.body);
-        res.json({ product: newProduct });
+        let nuevoProducto = await productManager.addProduct({ title, description, price, category });
+        console.log(nuevoProducto);
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(201).json({ payload: nuevoProducto });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(500).json({ error: error.message });
     }
 });
 
-// Actualizar un produto por ID
-router.put("/:pid", async (req, res) => {
-    const productId = parseInt(req.params.pid, 10);
+
+// Actualizar un producto por ID
+router.put('/:pid', async (req, res) => {
     try {
-        const updatedProduct = await productManager.updateProduct(productId, req.body);
-        res.json({ product: updatedProduct });
+        const product = await productManager.updateProduct(req);
+        res.status(200).json({ status: 'success', message: 'Producto actualizado correctamente', payload: product });
     } catch (error) {
-        res.status(404).json({ error: error.message });
+        res.status(500).json({ status: 'error', error: 'Error al actualizar producto' });
     }
 });
 
-// Elininar un producto por ID
-router.delete("/:pid", async (req, res) => {
-    const productId = parseInt(req.params.pid, 10);
+// Eliminar un producto por ID
+router.delete('/:pid', async (req, res) => {
     try {
-        const deletedProduct = await productManager.deleteProduct(productId);
-        res.json({ product: deletedProduct });
+        await productManager.deleteProduct(req);
+        res.status(200).json({ status: 'success', message: 'Producto eliminado correctamente' });
     } catch (error) {
-        res.status(404).json({ error: error.message });
+        res.status(500).json({ status: 'error', error: 'Error al eliminar producto' });
     }
 });
 

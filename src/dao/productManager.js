@@ -1,6 +1,7 @@
 import fs from "fs";
 import { modeloProduct } from "./models/product.modelo.js";
 
+
 // modeloProduct;
 class ProductManager {
     constructor(path) {
@@ -115,43 +116,39 @@ class ProductManager {
     }
 }
 
-const productManager = {
-    // Obtener todos los productos
-    getAllProducts: async (req, res) => {
+export class ProductManagerMongo {
+
+    async getProducts() {
         try {
-            const { limit = 10, page = 1, sort, category, stock } = req.query;
+            const products = await modeloProduct.find().lean();
+            return products;
+        } catch (error) {
+            throw new Error("Error al obtener productos desde la base de datos");
+        }
+    }
+    
+
+    async getAllProducts(query) {
+        try {
+            const { limit = 10, page = 1 } = query;
+            
             const options = {
                 limit: parseInt(limit),
                 skip: (parseInt(page) - 1) * parseInt(limit),
             };
-
-            let productsQuery = modeloProduct.find();
-
-            if (category) {
-                productsQuery = productsQuery.where("category").equals(category);
-            }
-
-            if (stock) {
-                productsQuery = productsQuery.where("stock").gte(stock);
-            }
-
-            if (sort === "asc" || sort === "desc") {
-                productsQuery = productsQuery.sort({ price: sort });
-            }
-
-            const products = await productsQuery.exec();
+    
+            const products = await modeloProduct.find({}, null, options).lean();
+    
             const totalProducts = await modeloProduct.countDocuments();
-
             const totalPages = Math.ceil(totalProducts / limit);
             const hasPrevPage = page > 1;
             const hasNextPage = page < totalPages;
-
-            const prevLink = hasPrevPage ? `/api/products?limit=${limit}&page=${page - 1}` : null;
-            const nextLink = hasNextPage ? `/api/products?limit=${limit}&page=${page + 1}` : null;
-
-            res.json({
-                status: "success",
-                payload: products,
+    
+            const prevLink = hasPrevPage ? `/api/products/all?limit=${limit}&page=${page - 1}` : null;
+            const nextLink = hasNextPage ? `/api/products/all?limit=${limit}&page=${page + 1}` : null;
+    
+            return {
+                products,
                 totalPages,
                 prevPage: page - 1,
                 nextPage: page + 1,
@@ -160,14 +157,14 @@ const productManager = {
                 hasNextPage,
                 prevLink,
                 nextLink,
-            });
+            };
         } catch (error) {
-            res.status(500).json({ status: "error", error: error.message });
+            console.error("Error al obtener todos los productos:", error.message);
+            throw new Error("Error al obtener productos");
         }
-    },
+    }
 
-    // Obtener un producto por su ID
-    getProductById: async (req, res) => {
+    async getProductById(req, res) {
         try {
             const { pid } = req.params;
             const product = await modeloProduct.findById(pid);
@@ -176,39 +173,39 @@ const productManager = {
                 return res.status(404).json({ status: "error", message: "Producto no encontrado" });
             }
 
-            res.json({ status: "success", payload: product });
+            res.status(200).json({ status: "success", payload: product });
         } catch (error) {
             res.status(500).json({ status: "error", error: error.message });
         }
-    },
+    }
 
-    // Agregar un nuevo producto
-    addProduct: async (req, res) => {
+    async addProduct(producto) {
         try {
-            const { title, description, price, category, availability } = req.body;
+            //  const { title, description, price, category } = req.body;
+    
+            //  const newProduct = new modeloProduct({
+            //      title,
+            //      description,
+            //      price,
+            //      category,
+            //      availability: true, // Asumiendo que la disponibilidad es verdadera por defecto
+            //  });
 
-            if (!title || !description || !price || !category) {
-                return res.status(400).json({ status: "error", message: "Todos los campos son obligatorios" });
-            }
+            // return await newProduct.create(newProduct);
+            console.log(producto);
+            const newProduct =await modeloProduct.create(producto);
+            console.log("Producto agregado correctamente:", newProduct);
+            io.emit("productAdded",newProduct);
+            return newProduct
+        //return res.status(201).json({ status: "success", message: "Producto agregado correctamente", payload: producto });
 
-            const newProduct = new Product({
-                title,
-                description,
-                price,
-                category,
-                availability: availability || true,
-            });
-
-            await newProduct.save();
-
-            res.status(201).json({ status: "success", message: "Producto agregado correctamente", payload: newProduct });
         } catch (error) {
-            res.status(500).json({ status: "error", error: error.message });
-        }
-    },
+            throw new Error(error.message);
 
-    // Actualizar un producto por su ID
-    updateProduct: async (req, res) => {
+        }
+    }
+
+    async updateProduct(req, res) {
         try {
             const { pid } = req.params;
             const { title, description, price, category, availability } = req.body;
@@ -218,7 +215,7 @@ const productManager = {
             if (description) updatedFields.description = description;
             if (price) updatedFields.price = price;
             if (category) updatedFields.category = category;
-            if (availability) updatedFields.availability = availability;
+            if (availability !== undefined) updatedFields.availability = availability;
 
             const updatedProduct = await modeloProduct.findByIdAndUpdate(pid, updatedFields, { new: true });
 
@@ -226,14 +223,13 @@ const productManager = {
                 return res.status(404).json({ status: "error", message: "Producto no encontrado" });
             }
 
-            res.json({ status: "success", message: "Producto actualizado correctamente", payload: updatedProduct });
+            res.status(200).json({ status: "success", message: "Producto actualizado correctamente", payload: updatedProduct });
         } catch (error) {
             res.status(500).json({ status: "error", error: error.message });
         }
-    },
+    }
 
-    // Eliminar un producto por su ID
-    deleteProduct: async (req, res) => {
+    async deleteProduct(req, res) {
         try {
             const { pid } = req.params;
             const deletedProduct = await modeloProduct.findByIdAndDelete(pid);
@@ -242,11 +238,11 @@ const productManager = {
                 return res.status(404).json({ status: "error", message: "Producto no encontrado" });
             }
 
-            res.json({ status: "success", message: "Producto eliminado correctamente" });
+            res.status(200).json({ status: "success", message: "Producto eliminado correctamente" });
         } catch (error) {
-            res.status(500).json({ status: "error", error: error.message });
+        res.status(500).json({ status: "error", error: error.message });
         }
-    },
-};
-
-export default ProductManager;
+        }
+        }
+        
+        export default ProductManagerMongo;
