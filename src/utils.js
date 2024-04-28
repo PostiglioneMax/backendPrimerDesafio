@@ -21,3 +21,5 @@ export default __dirname;
 //     "price": 100,
 //     "category": "Electrónicos"
 // }
+
+// http://localhost:3000/products/66232384a1def87e67c67c19/add-to-cart

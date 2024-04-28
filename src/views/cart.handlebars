@@ -1,0 +1,28 @@
+<!-- Carrito de compras -->
+<h1>Carrito de Compras</h1>
+
+<ul>
+    {{#each cart.products}}
+        <li>
+            {{this.productId.title}} - Cantidad: {{this.quantity}} 
+            <!-- Botón para eliminar un producto del carrito -->
+            <form action="/cart/{{../cart._id}}/{{this.productId}}" method="POST">
+                <button type="submit">Eliminar</button>
+            </form>
+            <!-- Formulario para actualizar la cantidad de un producto en el carrito -->
+            <form action="/cart/{{../cart._id}}/{{this.productId}}/quantity" method="POST">
+                <label for="quantity">Cantidad:</label>
+                <input type="number" name="quantity" value="{{this.quantity}}" min="1">
+                <button type="submit">Actualizar Cantidad</button>
+            </form>
+        </li>
+    {{/each}}
+</ul>
+
+<!-- Botón para limpiar el carrito -->
+<form action="/cart/{{cart._id}}" method="POST">
+    <button type="submit">Limpiar Carrito</button>
+</form>
+
+<!-- Botón para volver a la tienda -->
+<a href="/">Volver a la tienda</a>

@@ -1,49 +1,82 @@
 import express from "express";
 import ProductManagerMongo from "../dao/productManager.js";
-import CartManager from "../dao/cartManager.js";
+import CartManager from '../dao/cartManager.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 const productManager = new ProductManagerMongo("productos.json");
 const cartManager = new CartManager("carts.json");
+ 
 
 // Ruta para la vista home
 router.get("/", async (req, res) => {
     try {
-        const products = await productManager.getAllProducts(req.query);
-        //res.status(201).send("Producto agregado al carrito exitosamente");
-        res.render("home", { products });
+        let { pagina } = req.query;
+        if (!pagina) {
+            pagina = 1;
+        }
+        console.log("Página recibida:", pagina);
+        const {
+            products,
+            totalPages,
+            prevPage,
+            nextPage,
+            hasPrevPage,
+            hasNextPage
+        } = await productManager.getProducts({ limit: 10, page: pagina }); // Pasamos la página dinámica aquí
+
+        res.setHeader('Content-Type', 'text/html');
+        res.status(200).render("productos", { 
+            products,
+            totalPages,
+            prevPage,
+            nextPage,
+            hasPrevPage,
+            hasNextPage
+        });
     } catch (error) {
         console.error("Error al obtener datos:", error);
-        res.status(500).json({ status: "error", error: "Error al obtener datos" });    }
+        res.status(500).json({ status: "error", error: "Error al obtener datos" });
+    }
 });
+
+
+
 
 // Ruta para la vista de todos los productos con paginación
 router.get("/products", async (req, res) => {
     try {
-        const products = await productManager.getProducts(req.query);
-        res.render("home", { products });
+        const result = await productManager.getAllProducts(req.query);
+        res.render("home", result);
     } catch (error) {
         res.status(500).send("Error al cargar los productos");
     }
 });
 
-// Ruta para la vista de un producto seleccionado
-router.get("/products/:pid", async (req, res) => {
-    const productId = parseInt(req.params.pid, 10);
+router.get("/product/:pid", async (req, res) => {
+    const productId = req.params.pid;
     try {
         const product = await productManager.getProductById(productId);
-        res.status(200).send("Producto filtrado al carrito exitosamente");
-        res.render("productDetail", { product });
+        if (!product) {
+            return res.status(404).send("Producto no encontrado");
+        }
+        res.status(200).render("detalle", { product });
     } catch (error) {
-        res.status(404).send("Producto no encontrado");
+        res.status(500).send("Error al obtener el producto: " + error.message);
     }
 });
 
-// Ruta para agregar un producto al carrito directamente
+
+
+// Ruta para agregar un producto al carrito
+
 router.post("/products/:pid/add-to-cart", async (req, res) => {
-    const productId = parseInt(req.params.pid, 10);
-    const cartId = req.body.cartId; // Suponiendo que el ID del carrito se envía en el cuerpo de la solicitud
+    const productId = req.params.pid;
+    const cartId = req.body.cartId || "0";  // Valor por defecto si no se envía
+
     try {
+        console.log("Agregando producto al carrito. ProductId:", productId, "CartId:", cartId);
+
         // Verificar si el producto está disponible
         const product = await productManager.getProductById(productId);
         if (!product) {
@@ -54,34 +87,30 @@ router.post("/products/:pid/add-to-cart", async (req, res) => {
         }
 
         // Obtener el carrito correspondiente
-        const cart = await cartManager.getCartById(cartId);
-        if (!cart) {
-            return res.status(404).send("Carrito no encontrado");
+        let cart = await cartManager.getOrCreateCart(cartId);
+
+        // Verificar si el producto ya está en el carrito
+        if (!cart.products.includes(productId)) {
+            cart.products.push(productId);  // Agregar el ObjectId del producto
         }
 
-        // Agregar el producto al carrito
-        cart.products.push({
-            productId: product.id,
-            quantity: 1,
-        });
-
         // Actualizar el carrito en el almacenamiento persistente
-        await cartManager.updateCart(cartId, cart.products);
+        cart = await cartManager.updateCart(cart);
+        console.log("Carrito después de agregar producto:", cart);
 
         res.status(200).send("Producto agregado al carrito exitosamente");
     } catch (error) {
-        res.status(500).send("Error al agregar el producto al carrito");
+        console.error("Error al agregar el producto al carrito:", error);
+        res.status(500).send("Error al agregar el producto al carrito: " + error.message);
     }
 });
 
-// Ruta para la vista de un carrito específico
-router.get("/carts/:cid", async (req, res) => {
-    const cartId = parseInt(req.params.cid, 10);
+router.get('/cart/:cartId', async (req, res) => {
     try {
-        const cart = await cartManager.getCartById(cartId);
-        res.render("cartDetail", { cart });
+        const cart = await cartManager.getOrCreateCart(req.params.cartId);
+        res.render('cart', { cart });
     } catch (error) {
-        res.status(404).send("Carrito no encontrado");
+        res.status(404).send('Carrito no encontrado');
     }
 });
 

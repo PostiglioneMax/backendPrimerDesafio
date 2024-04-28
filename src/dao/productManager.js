@@ -1,5 +1,7 @@
 import fs from "fs";
 import { modeloProduct } from "./models/product.modelo.js";
+import mongoose from 'mongoose';
+
 
 
 // modeloProduct;
@@ -118,14 +120,42 @@ class ProductManager {
 
 export class ProductManagerMongo {
 
-    async getProducts() {
+    // async getProducts() {
+    //     try {
+    //         const products = await modeloProduct.find().lean();
+    //         return products;
+    //     } catch (error) {
+    //         throw new Error("Error al obtener productos desde la base de datos");
+    //     }
+    // }
+
+    async getProducts(query) {
         try {
-            const products = await modeloProduct.find().lean();
-            return products;
+            const { limit = 10, page = 1 } = query;
+            
+            const options = {
+                limit: parseInt(limit),
+                page: parseInt(page),
+                lean: true
+            };
+    
+            const result = await modeloProduct.paginate({}, options);
+    
+            return {
+                products: result.docs,
+                totalPages: result.totalPages,
+                prevPage: result.prevPage,
+                nextPage: result.nextPage,
+                hasPrevPage: result.hasPrevPage,
+                hasNextPage: result.hasNextPage
+            };
         } catch (error) {
             throw new Error("Error al obtener productos desde la base de datos");
         }
     }
+    
+    
+    
     
 
     async getAllProducts(query) {
@@ -144,8 +174,8 @@ export class ProductManagerMongo {
             const hasPrevPage = page > 1;
             const hasNextPage = page < totalPages;
     
-            const prevLink = hasPrevPage ? `/api/products/all?limit=${limit}&page=${page - 1}` : null;
-            const nextLink = hasNextPage ? `/api/products/all?limit=${limit}&page=${page + 1}` : null;
+            const prevLink = hasPrevPage ? `/?limit=${limit}&page=${page - 1}` : null;
+            const nextLink = hasNextPage ? `/?limit=${limit}&page=${page + 1}` : null;
     
             return {
                 products,
@@ -164,20 +194,60 @@ export class ProductManagerMongo {
         }
     }
 
-    async getProductById(req, res) {
+    // async getProductById(req, res) {
+    //     try {
+    //         const { pid } = req.params;
+    //         const product = await modeloProduct.findById(pid);
+
+    //         if (!product) {
+    //             return res.status(404).json({ status: "error", message: "Producto no encontrado" });
+    //         }
+
+    //         res.status(200).json({ status: "success", payload: product });
+    //     } catch (error) {
+    //         res.status(500).json({ status: "error", error: error.message });
+    //     }
+    // }
+    // async getProductById(productId) {
+    //     try {
+    //         if (!mongoose.Types.ObjectId.isValid(productId)) {
+    //             throw new Error("ID de producto inválido");
+    //         }
+    
+    //         const product = await modeloProduct.findById(productId);
+    
+    //         if (!product) {
+    //             throw new Error("Producto no encontrado");
+    //         }
+    
+    //         return product;
+    //     } catch (error) {
+    //         console.error("Error al obtener el producto:", error);
+    //         throw new Error("Error al obtener el producto");
+    //     }
+    // }
+    // async getProductById(productId) {
+    //     try {
+    //         const product = await modeloProduct.findById(productId);
+    //         return product;
+    //     } catch (error) {
+    //         throw new Error("Error al obtener el producto");
+    //     }
+    // }
+
+    async getProductById(productId) {
         try {
-            const { pid } = req.params;
-            const product = await modeloProduct.findById(pid);
-
-            if (!product) {
-                return res.status(404).json({ status: "error", message: "Producto no encontrado" });
-            }
-
-            res.status(200).json({ status: "success", payload: product });
+            const product = await modeloProduct.findById(productId).lean();
+            return product;
         } catch (error) {
-            res.status(500).json({ status: "error", error: error.message });
+            throw new Error("Error al obtener el producto por ID: " + error.message);
         }
     }
+    
+    
+    
+
+
 
     async addProduct(producto) {
         try {

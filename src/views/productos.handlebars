@@ -1,0 +1,30 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Productos</title>
+    </head>
+    <body>
+        <h1>Lista de Productos</h1>
+<ul>
+    {{#each products}}
+        <li>{{this.title}} - {{this.price}} - <a href="/product/{{this._id}}">Ver detalle</a> </li>
+    {{/each}}
+</ul>
+
+        
+     <a href="/?pagina=1">Pag.1</a>
+
+{{#if hasPrevPage}}
+<a href="/?pagina={{prevPage}}">Pag. Ant.</a>
+{{/if}}
+
+{{#if hasNextPage}}
+<a href="/?pagina={{nextPage}}">Pag. Sig.</a>
+{{/if}}
+
+<a href="/?pagina={{totalPages}}">Ult. Pag.</a>
+
+    </body>
+</html>
+
