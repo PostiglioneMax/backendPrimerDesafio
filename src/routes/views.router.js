@@ -1,15 +1,40 @@
 import express from "express";
 import ProductManagerMongo from "../dao/productManager.js";
 import CartManager from '../dao/cartManager.js';
-import mongoose from 'mongoose';
+import { auth } from '../middlewares/auth.js';
+
 
 const router = express.Router();
 const productManager = new ProductManagerMongo("productos.json");
 const cartManager = new CartManager("carts.json");
- 
+
+//ruta para registro
+router.get('/',(req,res)=>{
+
+    res.status(200).render('home', {login:req.session.usuario})
+})
+
+router.get('/registro',(req,res)=>{
+
+    res.status(200).render('registro', {login:req.session.usuario})
+})
+
+router.get('/login',(req,res)=>{
+
+    res.status(200).render('login', {login:req.session.usuario})
+})
+
+router.get('/perfil', auth, (req,res)=>{
+
+    let usuario=req.session.usuario
+
+    res.status(200).render('perfil', {usuario, login:req.session.usuario})
+})
+
 
 // Ruta para la vista home
-router.get("/", async (req, res) => {
+router.get("/productos", async (req, res) => {
+    const usuario = req.session.usuario;
     try {
         let { pagina } = req.query;
         if (!pagina) {
@@ -26,13 +51,15 @@ router.get("/", async (req, res) => {
         } = await productManager.getProducts({ limit: 10, page: pagina }); // Pasamos la página dinámica aquí
 
         res.setHeader('Content-Type', 'text/html');
-        res.status(200).render("productos", { 
+        res.status(200).render("productos", {
+            login:req.session.usuario,
             products,
             totalPages,
             prevPage,
             nextPage,
             hasPrevPage,
-            hasNextPage
+            hasNextPage,
+            usuario
         });
     } catch (error) {
         console.error("Error al obtener datos:", error);
@@ -40,18 +67,6 @@ router.get("/", async (req, res) => {
     }
 });
 
-
-
-
-// Ruta para la vista de todos los productos con paginación
-router.get("/products", async (req, res) => {
-    try {
-        const result = await productManager.getAllProducts(req.query);
-        res.render("home", result);
-    } catch (error) {
-        res.status(500).send("Error al cargar los productos");
-    }
-});
 
 router.get("/product/:pid", async (req, res) => {
     const productId = req.params.pid;

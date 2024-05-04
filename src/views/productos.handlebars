@@ -5,6 +5,13 @@
         <title>Productos</title>
     </head>
     <body>
+{{#if usuario}}
+        <div>
+            <p>Nombre: {{usuario.nombre}}</p>
+            <p>Email: {{usuario.email}}</p>
+            <p>Rol: {{usuario.rol}}</p>
+        </div>
+    {{/if}}
         <h1>Lista de Productos</h1>
 <ul>
     {{#each products}}
@@ -13,18 +20,19 @@
 </ul>
 
         
-     <a href="/?pagina=1">Pag.1</a>
+     <a href="/productos?pagina=1">Pag.1</a>
 
 {{#if hasPrevPage}}
-<a href="/?pagina={{prevPage}}">Pag. Ant.</a>
+<a href="/productos?pagina={{prevPage}}">Pag. Ant.</a>
 {{/if}}
 
 {{#if hasNextPage}}
-<a href="/?pagina={{nextPage}}">Pag. Sig.</a>
+<a href="/productos?pagina={{nextPage}}">Pag. Sig.</a>
 {{/if}}
 
-<a href="/?pagina={{totalPages}}">Ult. Pag.</a>
+<a href="/productos?pagina={{totalPages}}">Ult. Pag.</a>
 
     </body>
 </html>
 
+{{>menu}}
