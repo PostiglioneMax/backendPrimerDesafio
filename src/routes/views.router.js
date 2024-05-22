@@ -2,6 +2,8 @@ import express from "express";
 import ProductManagerMongo from "../dao/productManager.js";
 import CartManager from '../dao/cartManager.js';
 import { auth } from '../middlewares/auth.js';
+import passport from "passport";
+import { checkAuth, passportCall } from "../utils.js";
 
 
 const router = express.Router();
@@ -9,32 +11,45 @@ const productManager = new ProductManagerMongo("productos.json");
 const cartManager = new CartManager("carts.json");
 
 //ruta para registro
-router.get('/',(req,res)=>{
+router.get('/', checkAuth, auth(["public"]), (req,res)=>{
 
-    res.status(200).render('home', {login:req.session.usuario})
+    // const isAuthenticated = req.user ? true : false;
+    // const isAuthenticated = req.isAuthenticated;
+    const isAuthenticated = req.user ? true : false;
+
+
+    res.status(200).render('home', {isAuthenticated})
+
 })
 
-router.get('/registro',(req,res)=>{
+router.get('/registro', checkAuth, auth(["public"]), (req,res)=>{
 
-    res.status(200).render('registro', {login:req.session.usuario})
+    const isAuthenticated = req.user ? true : false;
+
+    res.status(200).render('registro', {isAuthenticated})
 })
 
-router.get('/login',(req,res)=>{
+router.get('/login',checkAuth, auth(["public"]), (req,res)=>{
 
-    res.status(200).render('login', {login:req.session.usuario})
+    const isAuthenticated = req.user ? true : false;
+
+    res.status(200).render('login', {isAuthenticated})
 })
 
-router.get('/perfil', auth, (req,res)=>{
+router.get('/perfil', passportCall("jwt"), auth(["user", "admin"]), (req,res)=>{
 
-    let usuario=req.session.usuario
+    const isAuthenticated = req.user ? true : false;
 
-    res.status(200).render('perfil', {usuario, login:req.session.usuario})
+    let usuario=req.user
+
+    res.status(200).render('perfil', {isAuthenticated, usuario})
 })
 
 
 // Ruta para la vista home
-router.get("/productos", async (req, res) => {
-    const usuario = req.session.usuario;
+router.get("/productos", checkAuth, async (req, res) => {
+    const isAuthenticated = req.user ? true : false;
+    let usuario=req.user
     try {
         let { pagina } = req.query;
         if (!pagina) {
@@ -52,7 +67,7 @@ router.get("/productos", async (req, res) => {
 
         res.setHeader('Content-Type', 'text/html');
         res.status(200).render("productos", {
-            login:req.session.usuario,
+            isAuthenticated,
             products,
             totalPages,
             prevPage,

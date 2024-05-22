@@ -1,10 +1,22 @@
 import passport from "passport";
 import local from "passport-local";
 import github from "passport-github2"
-import { creaHash, validaPassword } from "../utils.js";
+import passportjwt from "passport-jwt" 
+import { SECRET, creaHash, validaPassword } from "../utils.js";
 import { UsuariosManagerMongo } from "../dao/usuarioManager.js";
 
 const usuariosManager = new UsuariosManagerMongo()
+
+const buscaToken=(req)=>{
+    let token=null
+
+    if(req.signedCookies.coderCookie){
+        console.log("busca token...!!!")
+        token=req.signedCookies.coderCookie
+    }
+
+    return token
+}
 
 // 1) Definir la fn de configuracion
 
@@ -116,13 +128,31 @@ export const initPassport=()=>{
         )
     )
 
+    passport.use(
+        "jwt",
+        new passportjwt.Strategy(
+            {
+                secretOrKey: SECRET,
+                jwtFromRequest: new passportjwt.ExtractJwt.fromExtractors([buscaToken])
+            },
+            async (contenidoToken, done)=>{
+                try {
+                    console.log("passport")
+                    return done(null, contenidoToken)
+                } catch (error) {
+                    return done(error)
+                }
+            }
+        )
+    )
 
-    // 1') SOLO SI se usan sessions: Def serilizer y deserializer
-    passport.serializeUser((usuario, done)=>{
-        return done(null, usuario._id)
-    })
-    passport.deserializeUser( async (id, done)=>{
-        let usuario=await usuariosManager.getBy({_id:id})
-        return done(null, usuario)
-    })
+
+    // // 1') SOLO SI se usan sessions: Def serilizer y deserializer
+    // passport.serializeUser((usuario, done)=>{
+    //     return done(null, usuario._id)
+    // })
+    // passport.deserializeUser( async (id, done)=>{
+    //     let usuario=await usuariosManager.getBy({_id:id})
+    //     return done(null, usuario)
+    // })
 }

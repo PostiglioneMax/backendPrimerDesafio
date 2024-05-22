@@ -33,7 +33,7 @@ router.get("/errorGitHub", (req, res)=>{
 })
 
 
-router.post('/registro', passport.authenticate("registro", {failureRedirect:"/api/sessions/errorRegistro"}) , async(req,res)=>{
+router.post('/registro', passport.authenticate("registro", {session: false, failureRedirect:"/api/sessions/errorRegistro"}) , async(req,res)=>{
     
     // let {nombre, email, password} =req.body
     // if(!nombre || !email || !password){
@@ -66,14 +66,14 @@ router.post('/registro', passport.authenticate("registro", {failureRedirect:"/ap
 
                 })
                 
-                router.get("/errorRegistro", (req, res)=>{
+router.get("/errorRegistro", (req, res)=>{
                 
-                    return res.redirect(`/registro?error=Error 500 - error inesperado`)
+return res.redirect(`/registro?error=Error 500 - error inesperado`)
                 
-                })
+})
                 
                 
-router.post('/login', passport.authenticate("login", {failureRedirect:"/api/sessions/errorLogin"}), async(req,res)=>{
+router.post('/login', passport.authenticate("login", {session: false, failureRedirect:"/api/sessions/errorLogin"}), async(req,res)=>{
                     
                     // let {email, password} =req.body
                     // if(!email || !password){
@@ -100,9 +100,10 @@ router.post('/login', passport.authenticate("login", {failureRedirect:"/api/sess
             let token=jwt.sign(usuario, SECRET, {expiresIn:"1h"})
             console.log("esto es un token:", token)
 
+            res.cookie("coderCookie", token, {maxAge:1000*60*60, signed:true, httpOnly:true})
+
             return res.status(200).json({
                 usuarioLogueado: usuario,
-                token
             })
                                     
                                     // res.setHeader('Content-Type','application/json')
@@ -120,20 +121,21 @@ router.get("/errorLogin", (req, res)=>{
 
 router.get('/logout',(req,res)=>{
 
-    req.session.destroy(e=>{
-        if(e){
-            res.setHeader('Content-Type','application/json');
-            return res.status(500).json(
-                {
-                    error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
-                    detalle:`${e.message}`
-                }
-            )
+    // req.session.destroy(e=>{
+    //     if(e){
+    //         res.setHeader('Content-Type','application/json');
+    //         return res.status(500).json(
+    //             {
+    //                 error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
+    //                 detalle:`${e.message}`
+    //             }
+    //         )
             
-        }
-    })
-    
-    return res.redirect(`/login`)
+    //     }
+    // })
+    // return res.redirect(`/login`)
+    res.clearCookie('coderCookie'); // Elimina la cookie que contiene el token
+    return res.redirect('/login'); // Redirige al usuario a la página de inicio de sesión
 });
 
 export default router;
