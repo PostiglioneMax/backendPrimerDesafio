@@ -36,12 +36,16 @@ export class CartManager {
     async getOrCreateCart(cartId) {
         try {
             if (cartId === "0" || !mongoose.Types.ObjectId.isValid(cartId)) {
-                const newCart = new modeloCart({ products: [] });
+                const newCart = new modeloCart({ products: [] })
                 const savedCart = await newCart.save();
                 return savedCart;
             }
             
-            const cart = await modeloCart.findById(cartId);
+            const cart = await modeloCart.findById(cartId).lean().populate({
+                path: 'products',
+                model: 'Product'
+            });
+            console.log("esto es un CART...",cart);
             
             if (!cart) {
                 throw new Error("Carrito no encontrado");

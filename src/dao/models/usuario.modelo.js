@@ -10,7 +10,8 @@ export const usuariosModelo=mongoose.model('usuarios',new mongoose.Schema({
         type: String,
         enum: ['user', 'admin'],
         default: 'user', // valor predeterminado
-      }
+      },
+    cart: { type: mongoose.Schema.Types.ObjectId, ref: 'Cart' } 
 },
 {
 timestamps:true, strict:false

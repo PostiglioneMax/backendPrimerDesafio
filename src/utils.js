@@ -69,11 +69,11 @@ export const checkAuth = (req, res, next) => {
 //      "category": "Remeras Oversize"
 //  }
 
-// {
-//     "title": "Producto de ejemplo",
-//     "description": "Descripción del producto",
-//     "price": 100,
-//     "category": "Electrónicos"
-// }
+{
+  // "title": "Producto de ejemplo",
+  // "description": "Descripción del producto",
+  // "price": 100,
+  // "category": "Electrónicos"
+}
 
 // http://localhost:3000/products/66232384a1def87e67c67c19/add-to-cart

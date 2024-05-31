@@ -4,7 +4,7 @@
 <ul>
     {{#each cart.products}}
         <li>
-            {{this.productId.title}} - Cantidad: {{this.quantity}} 
+            {{this.title}} - Cantidad: {{this.availability}} 
             <!-- Botón para eliminar un producto del carrito -->
             <form action="/cart/{{../cart._id}}/{{this.productId}}" method="POST">
                 <button type="submit">Eliminar</button>

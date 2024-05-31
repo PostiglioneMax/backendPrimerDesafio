@@ -2,6 +2,8 @@ import express from "express";
 import http from "http";
 import mongoose from "mongoose";
 import handlebars from "express-handlebars";
+import { engine } from 'express-handlebars';
+import Handlebars from 'handlebars';
 import path from "path";
 import { Server } from "socket.io";
 import MongoStore from "connect-mongo";
@@ -15,13 +17,14 @@ import ProductManagerMongo from "./dao/productManager.js";
 import __dirname from "./utils.js";
 import passport from "passport";
 import cookieParser from "cookie-parser";
+import { config } from "./config/config.js";
 
 
 
 
 const app = express();
 const server = http.createServer(app);
-const port = 3000;
+const port = config.PORT;
 
 const productManager = new ProductManagerMongo();
 
@@ -65,9 +68,18 @@ app.use(passport.initialize())
 
 
 //handlebars
-app.engine("handlebars", handlebars.engine());
+app.engine('handlebars', engine({
+    defaultLayout: 'main',
+    handlebars: Handlebars,
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true,
+        allowProtoMethodsByDefault: true
+    }
+}));
 app.set("view engine", "handlebars");
 app.set("views", "./views");
+
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -93,7 +105,7 @@ app.listen(port, () => {
 
 const connect = async () => {
     try {
-        await mongoose.connect("mongodb+srv://postisama22:maxi123@cluster0.hjmvuac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
+        await mongoose.connect(config.MONGO_URL, {
             dbName: "DataBase",
             useNewUrlParser: true,
             useUnifiedTopology: true,
