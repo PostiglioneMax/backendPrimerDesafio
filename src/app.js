@@ -14,7 +14,7 @@ import productsRouter from "./routes/product.router.js";
 import cartRouter from "./routes/cart.router.js";
 import vistasRouter from "./routes/views.router.js";
 import ProductManagerMongo from "./dao/productManager.js";
-import __dirname from "./utils.js";
+import __dirname, { SECRET } from "./utils.js";
 import passport from "passport";
 import cookieParser from "cookie-parser";
 import { config } from "./config/config.js";
@@ -47,7 +47,7 @@ io.on("connection", (socket) => {
         console.log("Cliente desconectado");
     });
 });
-app.use(cookieParser("CoderCoder123"))
+app.use(cookieParser(SECRET))
 //Session YA NO VA, MIGRA A JWT
 // app.use(session(
 //     {

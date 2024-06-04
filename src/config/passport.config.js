@@ -1,7 +1,8 @@
 import passport from "passport";
 import local from "passport-local";
 import github from "passport-github2"
-import passportjwt from "passport-jwt" 
+import passportjwt from "passport-jwt"
+// import jwt from "jsonwebtoken" 
 import { SECRET, creaHash, validaPassword } from "../utils.js";
 import { UsuariosManagerMongo } from "../dao/usuarioManager.js";
 
@@ -94,39 +95,85 @@ export const initPassport=()=>{
         )
     )
 
+    // passport.use(
+    //     "github",
+    //     new github.Strategy(
+    //         {
+    //             clientID:"Iv23liGHC7q3e8sVpA0S",
+    //             clientSecret:"89e5a4a4af671419ed7b96c6d00ee53fa51ee078",
+    //             callbackURL:"http://localhost:3000/api/sessions/callbackGithub",
+    //         },
+    //         async function(accessToken, refreshToken, profile, done){
+    //             try{
+    //                 console.log(profile);
+    //                 let nombre= profile._json.name
+    //                 let email= profile._json.email
+    //                 profileGithub:profile
+
+    //                 if(!email){
+    //                     return done(null, false)
+    //                 }
+
+    //                 let usuario=await usuariosManager.getBy({email})
+    //                 if(!usuario){
+    //                     usuario=await usuariosManager.create({
+    //                         nombre, email, 
+    //                         profileGithub:profile
+    //                     })
+    //                 }
+    //             console.log("Usuario creado o recuperado:", usuario);
+
+    //             const token = jwt.sign({ id: usuario.id, email: usuario.email }, SECRET, { expiresIn: '1h' });
+
+    //             return done(null, { usuario, token })
+
+    //             } catch(error){
+    //                 return done(error)
+    //             }
+    //         }
+    //     )
+    // )
+
     passport.use(
         "github",
         new github.Strategy(
             {
-                clientID:"Iv23liGHC7q3e8sVpA0S",
-                clientSecret:"89e5a4a4af671419ed7b96c6d00ee53fa51ee078",
-                callbackURL:"http://localhost:3000/api/sessions/callbackGithub",
+                clientID: "Iv23liGHC7q3e8sVpA0S",
+                clientSecret: "89e5a4a4af671419ed7b96c6d00ee53fa51ee078",
+                callbackURL: "http://localhost:3000/api/sessions/callbackGithub",
             },
-            async function(accessToken, refreshToken, profile, done){
-                try{
-                    console.log(profile);
-                    let nombre= profile._json.name
-                    let email= profile._json.email
-
-                    if(!email){
-                        return done(null, false)
+            async function(accessToken, refreshToken, profile, done) {
+                try {
+                    let nombre = profile._json.name;
+                    let email = profile._json.email;
+    
+                    if (!email) {
+                        console.log("Email no encontrado en el perfil de GitHub");
+                        return done(null, false);
                     }
-
-                    let usuario=await usuariosManager.getBy({email})
-                    if(!usuario){
-                        usuario=await usuariosManager.create({
-                            nombre, email, 
-                            profileGithub:profile
-                        })
+    
+                    let usuario = await usuariosManager.getBy({ email });
+                    if (!usuario) {
+                        usuario = await usuariosManager.create({
+                            nombre,
+                            email,
+                        });
                     }
-                return done(null, usuario)
+    
+                    console.log("Usuario creado o recuperado:", usuario);
+    
+                    // Genera un JWT con los datos del usuario
+                    // const token = jwt.sign({ nombre: usuario.nombre, email: usuario.email }, SECRET, { expiresIn: '1h' });
 
-                } catch(error){
-                    return done(error)
+                    // Devuelve el usuario y el token
+                    return done(null, usuario);
+    
+                } catch (error) {
+                    return done(error);
                 }
             }
         )
-    )
+    );
 
     passport.use(
         "jwt",

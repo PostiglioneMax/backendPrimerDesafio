@@ -3,23 +3,44 @@ import { SECRET, creaHash, validaPassword } from '../utils.js';
 import { UsuariosManagerMongo } from '../dao/usuarioManager.js';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
 export const router=Router()
 
 let usuariosManager=new UsuariosManagerMongo()
 
 router.get('/github', passport.authenticate("github", {}), (req,res)=>{})
 
-router.get('/callbackGithub', passport.authenticate("github", {failureRedirect:"/api/sessions/errorGitHub"}), (req,res)=>{
+router.get('/callbackGithub', passport.authenticate('github', { failureRedirect: '/api/sessions/errorGitHub', session: false }), (req, res) => {
+    if (!req.user) {
+        console.log("Error: req.user no está definido");
+        return res.status(500).json({
+            error: "Error inesperado en el servidor - Intente más tarde, o contacte a su administrador",
+            detalle: "Fallo al autenticar con GitHub"
+        });
+    }
+    let usuario=req.user
+            usuario={...usuario}
+            delete usuario.password
+            delete usuario.profileGithub
+            // req.session.usuario=usuario // en un punto de mi proyecto
+            let token=jwt.sign(usuario, SECRET, {expiresIn:"1h"})
+            console.log("esto es un token:", token)
+            res.cookie("coderCookie", token, {maxAge:1000*60*60, signed:true, httpOnly:true})
+            console.log("Cookie C R E A D A")
 
-    // req.user
+            return res.status(200).json({
+                usuarioLogueado: usuario,
+            })
 
-    req.session.usuario=req.user
-    res.setHeader('Content-Type','application/json');
-    return res.status(200).json({
-        payload:"Login correcto", 
-        usuario:req.user
-    });
-})
+    // const { usuario, token } = req.user;
+    // console.log("Datos del usuario en req.user:", req.user);
+    // res.setHeader('Content-Type', 'application/json');
+    // return res.status(200).json({
+    //     payload: "Login correcto",
+    //     usuario: usuario,
+    //     token: token
+    // });
+});
 
 router.get("/errorGitHub", (req, res)=>{
     res.setHeader('Content-Type','application/json');
