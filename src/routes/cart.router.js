@@ -1,6 +1,9 @@
 import express from "express";
 import {CartManager} from "../dao/cartManager.js";
 import CartController from "../controller/cart.controller.js"; 
+import { checkAuth } from "../utils.js";
+import { auth } from "../middlewares/auth.js";
+
 
 const router = express.Router();
 const cartManager = new CartManager();
@@ -79,5 +82,7 @@ router.delete("/:cartId", CartController.deleteAllProducts)
 //         res.status(500).json({ error: error.message });
 //     }
 // });
+
+router.post('/:cid/purchase', checkAuth, auth(["user", "admin"]),CartController.cartPurchase)
 
 export default router;

@@ -8,6 +8,7 @@ import path from "path";
 import { Server } from "socket.io";
 import MongoStore from "connect-mongo";
 import { initPassport } from "./config/passport.config.js";
+import methodOverride from "method-override";
 // Importaciones de módulos propios
 import sessionsRouter from "./routes/sessions.router.js";
 import productsRouter from "./routes/product.router.js";
@@ -18,6 +19,7 @@ import __dirname, { SECRET } from "./utils.js";
 import passport from "passport";
 import cookieParser from "cookie-parser";
 import { config } from "./config/config.js";
+import { handleError } from "./middlewares/handleErrors.js";
 
 
 
@@ -47,6 +49,13 @@ io.on("connection", (socket) => {
         console.log("Cliente desconectado");
     });
 });
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride((req, res) => {
+    console.log(`Overriding method: ${req.body._method}`);
+    return req.body._method;
+}));
+
 app.use(cookieParser(SECRET))
 //Session YA NO VA, MIGRA A JWT
 // app.use(session(
@@ -66,7 +75,6 @@ initPassport()
 app.use(passport.initialize())
 // app.use(passport.session())
 
-
 //handlebars
 app.engine('handlebars', engine({
     defaultLayout: 'main',
@@ -79,10 +87,6 @@ app.engine('handlebars', engine({
 app.set("view engine", "handlebars");
 app.set("views", "./views");
 
-
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // alta de contenido static
 app.use(express.static(path.join(__dirname, "/public")));
@@ -97,6 +101,8 @@ app.use("/api/carts", cartRouter);
 
 // Ruta para la vista home
 app.use("/", vistasRouter);
+
+app.use(handleError)
 
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);

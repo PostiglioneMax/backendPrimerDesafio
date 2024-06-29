@@ -13,16 +13,27 @@ const productManager = new ProductManagerMongo("productos.json");
 const cartManager = new CartManager("carts.json");
 
 //ruta para registro
-router.get('/', checkAuth, auth(["public"]), (req,res)=>{
+router.get('/', checkAuth, auth(["public"]), async (req,res)=>{
+//     const isAuthenticated = req.user ? true : false;
+//     console.log("ESTO ES EL AUTHENTICATED....",isAuthenticated)
+//     const usuario = req.user || null;
+//     console.log("Usuario autenticado:", usuario);
 
-    // const isAuthenticated = req.user ? true : false;
-    // const isAuthenticated = req.isAuthenticated;
-    const isAuthenticated = req.user ? true : false;
+//    res.status(200).render('home', {isAuthenticated, usuario})
+const isAuthenticated = req.user;
 
+  if (!req.isAuthenticated) {
+    return res.render('home', { cart: null, isAuthenticated });
+  }
 
-    res.status(200).render('home', {isAuthenticated})
+  const cart = req.user.cart;
 
-})
+  if (cart && cart.products && cart.products.length > 0) {
+    res.render('home', { cart, isAuthenticated });
+  } else {
+    res.render('home', { cart: null, isAuthenticated });
+  }
+});
 
 router.get('/registro', checkAuth, auth(["public"]), (req,res)=>{
 
@@ -83,12 +94,19 @@ router.get("/productos", checkAuth, ProductosController.getAllProductsPaginate)
 //      }
 //  })
 
-router.get("/product/:pid", ProductosController.getProductById);
+router.get('/mockingproducts', ProductosController.getMockingProducts);
+
+router.get("/product/:pid", ProductosController.getProductById, (req,res)=>{
+
+    const isAuthenticated = req.user ? true : false;
+    const usuario = req.user || null;
 
 
+    res.status(200).render('detalle', {isAuthenticated, usuario})
+});
 
 // Ruta para agregar un producto al carrito
-router.post("/products/:pid/add-to-cart", passportCall("jwt"), auth(["user", "admin"]), ProductosController.ProductIdAddToCart)
+router.post("/products/:pid/add-to-cart", passportCall("jwt"), auth(["user"]), ProductosController.ProductIdAddToCart)
 // router.post("/products/:pid/add-to-cart", async (req, res) => {
 //     const productId = req.params.pid;
 //     const cartId = req.body.cartId || "0";  // Valor por defecto si no se envía
@@ -132,5 +150,22 @@ router.get('/cart/:cartId', async (req, res) => {
         res.status(404).send('Carrito no encontrado');
     }
 });
+
+router.get('/error', (req,res)=>{
+
+    throw new Error("Error de prueba")
+
+    res.setHeader('Content-Type','text/plain');
+    res.status(200).send('OK');
+})
+
+router.get('/error2', (req,res)=>{
+
+    CustomError.createError({name:"Error de prueba", cause:"Estamos probando errores", message:"Prueba Errores", code: ERRORES.INDETERMINADO})
+
+    res.setHeader('Content-Type','text/plain');
+    res.status(200).send('OK');
+})
+
 
 export default router;

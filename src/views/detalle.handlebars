@@ -8,3 +8,9 @@
     <input type="hidden" name="productId" value="{{ product._id }}">
     <button type="submit">Añadir al carrito</button>
 </form>
+
+<a href="/">Home</a>
+
+  {{#if user.cart}}
+    <a href="/cart/{{ user.cart._id }}">Cart ({{ user.cart.products.length }})</a>
+  {{/if}}

@@ -7,8 +7,12 @@ export class UsuariosManagerMongo{
         return nuevoUsuario.toJSON()
     }
 
-    async getBy(filtro){   // {email}
-        return await usuariosModelo.findOne(filtro).lean()
+    // async getBy(filtro){   // {email}
+    //     return await usuariosModelo.findOne(filtro).lean()
+    // }
+    async getBy(filtro) {
+        return await usuariosModelo.findOne(filtro).lean();
     }
+    
 
 }

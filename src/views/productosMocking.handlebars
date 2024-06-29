@@ -1,0 +1,35 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mock Products</title>
+</head>
+<body>
+    {{#if usuario}}
+        <div>
+            <p>Nombre: {{usuario.nombre}}</p>
+            <p>Email: {{usuario.email}}</p>
+            <p>Rol: {{usuario.rol}}</p>
+        </div>
+    {{/if}}
+    <h1>Lista de Productos Mock</h1>
+    <ul>
+        {{#each products}}
+            <li>{{this.title}} - {{this.price}} - <a href="/product/{{this._id}}">Ver detalle</a> </li>
+        {{/each}}
+    </ul>
+
+    <div>
+        <a href="/mockingproducts?pagina=1">Pag.1</a>
+        {{#if hasPrevPage}}
+            <a href="/mockingproducts?pagina={{prevPage}}">Pag. Ant.</a>
+        {{/if}}
+        {{#if hasNextPage}}
+            <a href="/mockingproducts?pagina={{nextPage}}">Pag. Sig.</a>
+        {{/if}}
+        <a href="/mockingproducts?pagina={{totalPages}}">Ult. Pag.</a>
+    </div>
+</body>
+</html>
+
+{{> menu}}

@@ -1,6 +1,10 @@
+import TicketService from "../Services/ticket.service.js";
 import { CartMongoDAO as CartDAO } from "../dao/cartMongoDAO.js";
+import modeloCart from "../dao/models/cart.modelo.js";
+import { UsuariosMongoDAO } from "../dao/usuariosMongoDAO.js";
 
-
+const usuariosDAO = new UsuariosMongoDAO();
+const ticketService = new TicketService();
 const cartDAO = new CartDAO()
 
 export default class CartController{
@@ -24,7 +28,7 @@ export default class CartController{
                 const cart = await newCart.save();
                 return cart;
             }
-
+ 
             const cart = await cartDAO.getOneById(cartId)
             
             const productObjectId = mongoose.Types.ObjectId(productId);
@@ -66,6 +70,7 @@ export default class CartController{
     static updateProductQuantity = async (req, res) => {
         const { cartId, productId } = req.params;
         const { quantity } = req.body;
+        console.log("PRODUCTid....!!", productId);
         try {
             const cart = await cartDAO.getOneById(cartId);
 
@@ -89,15 +94,60 @@ export default class CartController{
     static deleteAllProducts = async (req, res) => {
         const { cartId } = req.params;
         try {
-            const cart = await cartDAO.getOneById(cartId);
-            
-            cart.products = [];
-            await cart.save();
-            
-            return cart;
+            let cart = await cartDAO.getOneById(cartId);
+
+            if (!cart) {
+                return res.status(404).json({ error: "Carrito no encontrado" });
+            }
+
+            // Limpiar los productos del carrito
+            const updatedCart = await cartDAO.updateOneCart2(cartId, { products: [] });
+
+            // Actualizar el usuario para reflejar el carrito actualizado
+            const usuario = await usuariosDAO.updateUserCart(cart.userId, updatedCart._id);
+
+            req.user=usuario
+
+            // Responder con éxito y el carrito actualizado
+            res.status(200).json({ message: "Carrito limpiado correctamente", cart: updatedCart });
         } catch (error) {
-            throw new Error("Error al limpiar el carrito");
+            console.error("Error al limpiar el carrito:", error.message);
+            res.status(500).json({ error: "Error al limpiar el carrito" });
         }
     }
+    
+
+
+static cartPurchase = async (req, res) => {
+    const cartId = req.user.cart;
+    console.log("Recibido cartId:", cartId);  
+
+  try {
+    const cart = await cartDAO.getOneById(cartId); // Asumiendo que el modelo de carrito tiene un esquema con productos referenciados
+
+    if (!cart) {
+      return res.status(404).json({ message: 'Carrito no encontrado' });
+    }
+
+    const purchaser = req.user.email; // Asumiendo que tienes autenticación y puedes obtener el email del usuario
+    const { products } = cart;
+
+    const { ticket, failedPurchaseIds, remainingProducts } = await ticketService.processPurchase(products, purchaser);
+
+    await cartDAO.updateOneCart2(cartId, { products: remainingProducts });
+    console.log("CARRITO POST COMPRA PAPAA;", cartId);
+    // cart.products = remainingProducts;
+    // await cart.save();
+
+    res.json({
+      message: 'Compra procesada',
+      ticket,
+      failedPurchaseIds,
+      remainingProducts
+    });
+  } catch (error) {
+    res.status(500).json({ message: `Error al procesar la compra: ${error.message}` });
+  }
+};
 
 }

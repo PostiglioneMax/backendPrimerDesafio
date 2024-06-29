@@ -1,6 +1,7 @@
 import express from 'express';
 import ProductManagerMongo from '../dao/productManager.js';
 import ProductosController from "../controller/productos.controller.js";
+import { auth } from '../middlewares/auth.js';
 
 
 
@@ -41,7 +42,8 @@ router.get('/:pid', ProductosController.getProductById)
 // });
 
 // Agregar un nuevo producto
-router.post('/addProduct', ProductosController.addProduct)
+//    router.post('/addProduct', ProductosController.addProduct)
+router.post('/addProduct', auth(["admin"]),ProductosController.addProduct)
 // router.post('/', async (req, res) => {
 //     let { title, description, price, category } = req.body;
 //     if (!title || !description || !price || !category) {

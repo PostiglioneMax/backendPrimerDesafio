@@ -4,8 +4,10 @@ import { UsuariosManagerMongo } from '../dao/usuarioManager.js';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
+import { CartMongoDAO as CartDAO } from '../dao/cartMongoDAO.js';
 export const router=Router()
 
+let cartDAO=new CartDAO()
 let usuariosManager=new UsuariosManagerMongo()
 
 router.get('/github', passport.authenticate("github", {}), (req,res)=>{})
@@ -113,27 +115,23 @@ router.post('/login', passport.authenticate("login", {session: false, failureRed
                                     //     res.setHeader('Content-Type','application/json');
                                     //     return res.status(401).json({error:`Credenciales incorrectas`})
                                     // }
-                                    
-            let usuario=req.user
-            usuario={...usuario}
-            delete usuario.password
-            // req.session.usuario=usuario // en un punto de mi proyecto
-            let token=jwt.sign(usuario, SECRET, {expiresIn:"1h"})
-            console.log("esto es un token:", token)
+                                
+            
+            // SEGUNDO TRY                        
+             let usuario=req.user
+             usuario={...usuario}
+             delete usuario.password
+             // req.session.usuario=usuario // en un punto de mi proyecto
+             let token=jwt.sign(usuario, SECRET, {expiresIn:"1h"})
+             console.log("esto es un token:", token)
+             res.cookie("coderCookie", token, {maxAge:1000*60*60, signed:true, httpOnly:true})
+             return res.status(200).json({
+                 usuarioLogueado: usuario,
+             })
+                                 
+ })
 
-            res.cookie("coderCookie", token, {maxAge:1000*60*60, signed:true, httpOnly:true})
 
-            return res.status(200).json({
-                usuarioLogueado: usuario,
-            })
-                                    
-                                    // res.setHeader('Content-Type','application/json')
-                                    // res.status(200).json({
-                                        //     message:"Login correcto", usuario
-                                        // })
-    // return res.redirect(`/productos`)
-
-})
 
 router.get("/errorLogin", (req, res)=>{
     // return res.status(400).json({error:`Error en el proceso de login... :(`})

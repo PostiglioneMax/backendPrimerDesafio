@@ -31,4 +31,33 @@ export class CartMongoDAO{
         });
     }
 
+    async updateOneCart2(cartId, updatedFields) {
+        try {
+            const updatedCart = await modeloCart.findByIdAndUpdate(
+                cartId,
+                { $set: updatedFields },
+                { new: true }
+            ).populate({
+                path: 'products',
+                model: 'Product'
+            });
+
+            return updatedCart;
+        } catch (error) {
+            throw new Error(`Error al actualizar el carrito en la base de datos: ${error.message}`);
+        }
+    }
+
+    async updateProductQuantity(cartId, productId, quantityChange) {
+        return await modeloCart.findOneAndUpdate(
+            { _id: cartId, 'products': productId },
+            { $inc: { 'products.$.quantity': quantityChange } },
+            { new: true }
+        ).populate({
+            path: 'products',
+            model: 'Product'
+        });
+    }
+
+
 }

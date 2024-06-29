@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken"
 import { SECRET } from "../utils.js"
+import passport from "passport";
+
 
 // export const auth=(req, res, next)=>{
 //     // if(!req.session.usuario){
@@ -55,3 +57,25 @@ export const auth=(accesos=[])=>{
         next()
     }
 }
+// Middleware de autenticación personalizado
+export const authenticateMiddleware = (req, res, next) => {
+    passport.authenticate('login', { session: false }, async (err, user, info) => {
+        try {
+            if (err || !user) {
+                return res.status(401).json({ error: 'Credenciales incorrectas' });
+            }
+
+            req.login(user, { session: false }, async (error) => {
+                if (error) {
+                    return res.status(500).json({ error: 'Error interno del servidor' });
+                }
+                
+                // Si todo está bien, continuar con la siguiente función (next)
+                next();
+            });
+
+        } catch (error) {
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    })(req, res, next);
+};

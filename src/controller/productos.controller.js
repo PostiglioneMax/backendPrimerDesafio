@@ -1,17 +1,23 @@
 import { ProductosMongoDAO as ProductosDAO } from "../dao/productosMongoDAO.js";
 import { CartMongoDAO as CartDAO } from "../dao/cartMongoDAO.js";
 import { UsuariosMongoDAO as UsuariosDAO } from "../dao/usuariosMongoDAO.js";
+import { ProductosService } from "../Services/productos.service.js";
 import mongoose from "mongoose";
+import { faker } from "@faker-js/faker";
+import { ERRORES } from "../utils/erroresDef.js";
+import { CustomError } from "../utils/customError.js";
+import { argumentosProducto } from "../utils/erroresProductos.js";
 
 const usuariosDAO = new UsuariosDAO()
 const cartDAO = new CartDAO()
-const productosDAO = new ProductosDAO()
+// const productosDAO = new ProductosDAO()
+const productosService= new ProductosService()
 
 export default class ProductosController {
 
     static getProducts = async (req, res) => {
         try {
-            const products = await productosDAO.getAllProducts();
+            const products = await productosService.obtenerTodosLosProductos();
             console.log(products);
             res.status(200).json({ status: 'success', payload: {products} });
         } catch (error) {
@@ -22,7 +28,7 @@ export default class ProductosController {
     static getProductById=async(req, res) => {
     const productId = req.params.pid;
     try {
-        const product = await productosDAO.getOneById(productId);
+        const product = await productosService.obtenerProductoPorId(productId);
         if (!product) {
             return res.status(404).send("Producto no encontrado");
         }
@@ -32,21 +38,24 @@ export default class ProductosController {
     }
 }
 
-    static addProduct=async(req, res) => {
+    static addProduct=async(req, res, next) => {
             let { title, description, price, category } = req.body;
-    if (!title || !description || !price || !category) {
-        res.setHeader('Content-Type', 'application/json');
-        return res.status(400).json({ error: "faltan datos obligatorios" });
-    }
-
-    try {
-        let nuevoProducto = await productosDAO.addProduct({ title, description, price, category });
+            
+            try {
+                if (!title || !description || !price || !category) {
+                    CustomError.createError({
+                        name: "Error al crear producto",
+                        cause: argumentosProducto(req.body),
+                        message: "Complete todas las prop",
+                        code: ERRORES['ARGUMENTOS INVALIDOS']
+                    });
+                }
+        let nuevoProducto = await productosService.agregarProducto({ title, description, price, category });
         console.log(nuevoProducto);
         res.setHeader('Content-Type', 'application/json');
         return res.status(201).json({ payload: nuevoProducto });
     } catch (error) {
-        res.setHeader('Content-Type', 'application/json');
-        return res.status(500).json({ error: error.message });
+        next(error)
     }
 } 
 
@@ -62,7 +71,7 @@ static updateProduct=async(req, res) => {
         if (category) updatedFields.category = category;
         if (availability !== undefined) updatedFields.availability = availability;
 
-        const updatedProduct = await productosDAO.updateOneProduct(pid, updatedFields);
+        const updatedProduct = await productosService.actualizarProducto(pid, updatedFields);
 
         if (!updatedProduct) {
             return res.status(404).json({ status: "error", message: "Producto no encontrado" });
@@ -77,7 +86,7 @@ static updateProduct=async(req, res) => {
 static deleteProduct=async(req, res) => {
     const productId = req.params.pid;
     try {
-        await productosDAO.deleteProduct(productId);
+        await productosService.eliminarProducto(productId);
         res.status(200).json({ status: 'success', message: 'Producto eliminado correctamente' });
     } catch (error) {
         res.status(500).json({ status: 'error', error: 'Error al eliminar producto' });
@@ -106,7 +115,7 @@ static getAllProductsPaginate = async (req, res) => {
             nextPage,
             hasPrevPage,
             hasNextPage
-        } = await productosDAO.getAllPaginate(options); // Pasamos la página dinámica aqu
+        } = await productosService.obtenerProductosPaginados(options); // Pasamos la página dinámica aqu
         res.setHeader('Content-Type', 'text/html');
         res.status(200).render("productos", {
             isAuthenticated,
@@ -123,6 +132,41 @@ static getAllProductsPaginate = async (req, res) => {
         res.status(500).json({ status: "error", error: "Error al obtener datos" });
     }
 }
+
+static getMockingProducts = (req, res) => {
+    const products = [];
+    const { limit = 10, pagina = 1 } = req.query; 
+    const parsedLimit = parseInt(limit, 10);
+    const parsedPage = parseInt(pagina, 10);
+
+    for (let i = 0; i < 100; i++) {
+      const product = {
+        title: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        price: faker.commerce.price(),
+        category: faker.commerce.department(),
+        availability: faker.datatype.boolean(),
+        stock: faker.datatype.number({ min: 1, max: 100 }),
+        quantity: faker.datatype.number({ min: 1, max: 10 })
+      };
+      products.push(product);
+    }
+
+    const startIndex = (parsedPage - 1) * parsedLimit;
+    const endIndex = parsedPage * parsedLimit;
+    const paginatedProducts = products.slice(startIndex, endIndex);
+
+    res.status(200).render("productosMocking",{
+      products: paginatedProducts,
+      totalPages: Math.ceil(products.length / parsedLimit),
+      currentPage: parsedPage,
+      hasPrevPage: parsedPage > 1,
+      hasNextPage: parsedPage < Math.ceil(products.length / parsedLimit),
+      prevPage: parsedPage > 1 ? parsedPage - 1 : null,
+      nextPage: parsedPage < Math.ceil(products.length / parsedLimit) ? parsedPage + 1 : null,
+    });
+  }
+
 
 // static ProductIdAddToCart = async (req, res) => {
 //     const productId = req.params.pid;
@@ -175,7 +219,7 @@ static ProductIdAddToCart = async (req, res) => {
 
     try {
         // Verificar si el producto está disponible
-        const product = await productosDAO.getOneById(productId);
+        const product = await productosService.obtenerProductoPorId(productId);
         if (!product) {
             return res.status(404).send("Producto no encontrado");
         }
@@ -189,7 +233,7 @@ static ProductIdAddToCart = async (req, res) => {
 
         if (!user.cart) {
             // Crear un nuevo carrito si el usuario no tiene uno
-            cart = await cartDAO.createCart({ products: [productId] });
+            cart = await cartDAO.createCart({ products: [productId]});
             // Asociar el carrito al usuario
             await usuariosDAO.updateUserCart(userId, cart._id);
         } else {
@@ -202,17 +246,26 @@ static ProductIdAddToCart = async (req, res) => {
             console.log("Agregando producto al carrito. ProductId:", productId, "CartId:", cart._id);
 
             // Verificar si el producto ya está en el carrito
-            if (!cart.products.includes(productId)) {
-                cart.products.push(productId);  // Agregar el ID del producto directamente
+            // if (!cart.products.includes(productId)) {
+            //     cart.products.push(productId);  // Agregar el ID del producto directamente
+            // }
+            const existingProduct = cart.products.find(p => p.toString() === productId);
+
+            if (existingProduct) {
+                await cartDAO.updateProductQuantity(user.cart._id, productId, 1);
+            } else {
+                cart.products.push(productId);
+                await cartDAO.updateOneCart(cart);
             }
 
-            // Actualizar el carrito en el almacenamiento persistente
-            await cartDAO.updateOneCart(cart);
         }
 
         console.log("Carrito después de agregar producto:", cart);
 
-        res.status(200).send("Producto agregado al carrito exitosamente");
+        res.render("detalle", {
+            product,
+            user
+        });
     } catch (error) {
         console.error("Error al agregar el producto al carrito:", error);
         res.status(500).send("Error al agregar el producto al carrito: " + error.message);

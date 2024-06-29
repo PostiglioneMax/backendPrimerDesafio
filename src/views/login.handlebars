@@ -1,17 +1,53 @@
 <h2>Login usuarios:</h2>
 <hr>
-<form action="/api/sessions/login" method="post">
+<form id="loginForm">
 
     <div id="mensaje"></div>
 
-    <input type="email" name="email" placeholder="email" id="email">
-    <input type="password" name="password" placeholder="contraseña" id="password">
+    <input type="email" name="email" placeholder="email" id="email" required>
+    <input type="password" name="password" placeholder="contraseña" id="password" required>
     <br>
+    <input type="hidden" name="_method" id="_method" value="POST">
     <input type="submit" value="Ingresar" id="submit">
 
 </form>
 <br>
 <a href="/api/sessions/github">Ingreso con Github</a>
 
-
 {{>menu}}
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+    event.preventDefault(); // Evitar el comportamiento predeterminado de envío
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const method = document.getElementById('_method').value; // Obtener el valor de _method
+
+    try {
+        const response = await fetch('/api/sessions/login', {
+            method: method, // Usar el método obtenido
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+            // Si la respuesta no es OK (es decir, error en login), manejar el error
+            const errorMessage = await response.text(); // Obtener el mensaje de error como texto
+            throw new Error(errorMessage); // Lanzar un error con el mensaje obtenido
+        }
+
+        const data = await response.json(); // Intentar parsear la respuesta como JSON
+
+        // Si todo está bien, redirigir o manejar la respuesta según sea necesario
+        window.location.href = data.redirectUrl || '/';
+
+    } catch (error) {
+        // Capturar y manejar cualquier error ocurrido durante la solicitud
+        console.error('Error en la solicitud:', error);
+        document.getElementById('mensaje').innerText = error.message || 'Error en el login';
+    }
+});
+</script>

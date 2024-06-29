@@ -7,6 +7,8 @@ const productSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     category: { type: String, required: true },
     availability: { type: Boolean, default: true },
+    stock: { type: Number, required: true }, // Agregado para manejar el inventario
+    quantity: { type: Number, default: 1 }, // Agregado para manejar la cantidad comprada
 },
 {
     timestamps:true, strict:false
