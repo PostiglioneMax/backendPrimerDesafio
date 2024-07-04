@@ -3,7 +3,7 @@ import ProductManagerMongo from "../dao/productManager.js";
 import CartManager from '../dao/cartManager.js';
 import { auth } from '../middlewares/auth.js';
 import passport from "passport";
-import { checkAuth, passportCall } from "../utils.js";
+import { checkAuth, logger, passportCall } from "../utils.js";
 import { genSaltSync } from "bcrypt";
 import ProductosController from "../controller/productos.controller.js";
 
@@ -166,6 +166,17 @@ router.get('/error2', (req,res)=>{
     res.setHeader('Content-Type','text/plain');
     res.status(200).send('OK');
 })
+
+router.get('/loggerTest', (req, res) => {
+    req.logger.fatal('This is a fatal log');
+    req.logger.error('This is an error log');
+    req.logger.warning('This is a warning log');
+    req.logger.info('This is an info log');
+    req.logger.http('This is an http log');
+    req.logger.debug('This is a debug log');
+  
+    res.send('Logger test completed. Check your logs.');
+  });
 
 
 export default router;

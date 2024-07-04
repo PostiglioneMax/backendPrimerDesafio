@@ -7,6 +7,8 @@ import passport from "passport";
 import modeloCart from "./dao/models/cart.modelo.js";
 import { CartMongoDAO as CartDAO } from "./dao/cartMongoDAO.js";
 import { title } from "process";
+import winston from "winston";
+import { config } from "./config/config.js";
 
 
 const cartDAO = new CartDAO()
@@ -96,4 +98,76 @@ export const checkAuth2 = async (req, res, next) => {
     next();
   }
 };
+// LOGGER
 
+const customLevels={
+  fatal:0,
+  error:1, 
+  warning:2, 
+  info:3,
+  http:4,
+  debug:5
+}
+
+export const logger=winston.createLogger(
+  {
+      levels: customLevels,
+      transports:[]
+  }
+)
+
+
+const transporteFileError=new winston.transports.File({
+  level: "error",
+  filename: "./logs/erroresGraves.log",
+  format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.json()
+  )
+})
+
+const transporteConsolaDebug=new winston.transports.Console(
+  {
+      level: "debug", 
+      format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.colorize({
+              colors:{fatal:"red", error:"red", warning:"yellow", info:"blue", http: "green", debug: "green"}
+          }),
+          winston.format.simple()
+      )
+  }
+)
+
+const transporteConsolaInfo=new winston.transports.Console(
+  {
+      level: "info", 
+      format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.colorize({
+              colors:{grave:"red", medio:"yellow", info:"blue", leve: "green"}
+          }),
+          winston.format.simple()
+      )
+  }
+)
+
+if(config.MODE === "DEV"){
+  logger.add(transporteConsolaDebug)
+  console.log('DEV mode: Added Console Debug Transport');
+}
+if(config.MODE === "PRODU"){
+  logger.add(transporteConsolaInfo)
+  logger.add(transporteFileError)
+  console.log('PROD mode: Added Console Info and File Error Transports');
+}
+if (logger.transports.length === 0) {
+  console.warn('No transports have been added to the logger!');
+}
+
+export const middLogg=(req, res, next)=>{
+  console.log('Pasaste por la ADUANA de los LOGS');
+  logger.info("Pasaste por ADUANA PA")
+  req.logger=logger
+  next()
+}

@@ -1,0 +1,45 @@
+{"level":"error","message":"ESTO ES UN ERROR","timestamp":"2024-07-04T04:18:05.124Z"}
+{"level":"error","message":"ESTO ES UN ERROR","timestamp":"2024-07-04T04:19:23.374Z"}
+{"level":"error","message":"ESTO ES UN ERROR","timestamp":"2024-07-04T06:09:35.310Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:15:00.921Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:15:00.923Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:28:02.936Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:28:02.937Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:29:23.978Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:29:23.979Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:35:10.024Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:35:10.025Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:36:08.062Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:36:08.063Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:37:20.569Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:37:20.570Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:40:17.631Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:40:17.632Z"}
+{"level":"error","message":"This is a fatal log","timestamp":"2024-07-04T06:40:22.298Z"}
+{"level":"error","message":"This is a fatal log","timestamp":"2024-07-04T06:40:24.923Z"}
+{"level":"error","message":"This is a fatal log","timestamp":"2024-07-04T06:40:25.404Z"}
+{"level":"error","message":"This is a fatal log","timestamp":"2024-07-04T06:40:25.566Z"}
+{"level":"error","message":"This is a fatal log","timestamp":"2024-07-04T06:40:25.731Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:40:47.822Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:40:47.823Z"}
+{"level":"error","message":"This is a fatal log","timestamp":"2024-07-04T06:40:51.180Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:41:42.927Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:41:42.929Z"}
+{"level":"error","message":"This is a fatal log","timestamp":"2024-07-04T06:41:45.836Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:42:12.734Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:42:12.736Z"}
+{"level":"error","message":"This is a fatal log","timestamp":"2024-07-04T06:42:14.340Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:42:35.234Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:42:35.235Z"}
+{"level":"error","message":"This is a fatal log","timestamp":"2024-07-04T06:42:37.889Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:43:23.834Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:43:23.836Z"}
+{"level":"error","message":"This is a fatal log","timestamp":"2024-07-04T06:43:26.094Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:46:04.539Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:46:04.540Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:53:16.037Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:53:16.038Z"}
+{"level":"error","message":"ESTO ES UN fatal","timestamp":"2024-07-04T06:55:56.040Z"}
+{"level":"error","message":"ESTO ES UN error","timestamp":"2024-07-04T06:55:56.041Z"}
+{"level":"fatal","message":"This is a fatal log","timestamp":"2024-07-04T06:56:06.228Z"}
+{"level":"error","message":"This is an error log","timestamp":"2024-07-04T06:56:06.229Z"}

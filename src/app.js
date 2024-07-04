@@ -15,7 +15,7 @@ import productsRouter from "./routes/product.router.js";
 import cartRouter from "./routes/cart.router.js";
 import vistasRouter from "./routes/views.router.js";
 import ProductManagerMongo from "./dao/productManager.js";
-import __dirname, { SECRET } from "./utils.js";
+import __dirname, { SECRET, logger, middLogg } from "./utils.js";
 import passport from "passport";
 import cookieParser from "cookie-parser";
 import { config } from "./config/config.js";
@@ -44,11 +44,15 @@ io.on("connection", (socket) => {
     socket.on("productDeleted", (productId) => {
         io.emit("updateProducts", productManager.getProducts());
     });
-
+    
     socket.on("disconnect", () => {
         console.log("Cliente desconectado");
     });
 });
+
+//LOGGER
+app.use(middLogg)
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride((req, res) => {
@@ -117,6 +121,14 @@ const connect = async () => {
             useUnifiedTopology: true,
         });
         console.log("DB Online!!...");
+        logger.error("ESTO ES UN fatal")
+        logger.error("ESTO ES UN error")
+        logger.warning("ESTO ES UN warning")
+        logger.info("SE INICIO EL SERVER")
+        logger.http("ESTO ES UN http")
+        logger.debug("ESTO ES UN DEBUG")
+
+        console.log(config.MODE);
     } catch (error) {
         console.log("Fallo la conexion, detalle:", error.message);
     }
