@@ -9,6 +9,7 @@ import { Server } from "socket.io";
 import MongoStore from "connect-mongo";
 import { initPassport } from "./config/passport.config.js";
 import methodOverride from "method-override";
+import os from "os"
 // Importaciones de módulos propios
 import sessionsRouter from "./routes/sessions.router.js";
 import productsRouter from "./routes/product.router.js";
@@ -89,7 +90,7 @@ app.engine('handlebars', engine({
     }
 }));
 app.set("view engine", "handlebars");
-app.set("views", "./views");
+app.set("views", path.join(__dirname, "views"));
 
 
 // alta de contenido static
@@ -116,10 +117,10 @@ app.listen(port, () => {
 const connect = async () => {
     try {
         await mongoose.connect(config.MONGO_URL, {
-            dbName: "DataBase",
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
+            dbName: "DataBase"
         });
+        logger.info("esto es mi cpu-----", os.cpus())
+        logger.info("esto es mi cpu-----", os.cpus().length)
         console.log("DB Online!!...");
         logger.error("ESTO ES UN fatal")
         logger.error("ESTO ES UN error")

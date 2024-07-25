@@ -30,4 +30,16 @@ export class UsuariosMongoDAO{
         return await usuariosModelo.findById(userId).lean().populate('cart');
     }
 
+    async getBy(filtro) {
+        return await usuariosModelo.findOne(filtro).lean();
+    }
+
+    async update(userId, updateData) {
+        try {
+            return await usuariosModelo.findByIdAndUpdate(userId, updateData, { new: true });
+        } catch (error) {
+            throw new Error(`Error al actualizar usuario: ${error.message}`);
+        }
+    }
+
 }

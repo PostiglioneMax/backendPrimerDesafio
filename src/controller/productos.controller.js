@@ -39,10 +39,10 @@ export default class ProductosController {
 }
 
     static addProduct=async(req, res, next) => {
-            let { title, description, price, category } = req.body;
+            let { title, description, price, category, stock } = req.body;
             
             try {
-                if (!title || !description || !price || !category) {
+                if (!title || !description || !price || !category || !stock) {
                     CustomError.createError({
                         name: "Error al crear producto",
                         cause: argumentosProducto(req.body),
@@ -50,13 +50,33 @@ export default class ProductosController {
                         code: ERRORES['ARGUMENTOS INVALIDOS']
                     });
                 }
-        let nuevoProducto = await productosService.agregarProducto({ title, description, price, category });
-        console.log(nuevoProducto);
-        res.setHeader('Content-Type', 'application/json');
-        return res.status(201).json({ payload: nuevoProducto });
-    } catch (error) {
-        next(error)
-    }
+                if (!req.user) {
+                    console.error('Usuario no autenticado'); // Depuración
+                    return res.status(401).json({ error: 'No existen usuarios autenticados' });
+                }
+
+                const userId = req.user._id;
+                console.log(userId)
+                console.log(req.user)
+                const user = await usuariosDAO.getUserById(userId)
+
+                if (!user) {
+                    return res.status(404).json({ error: 'Error al identificar el usuario' });
+                }
+
+                let owner = 'admin';
+                if (user.rol === 'premium') {
+                owner = user.email; // Asignar el email del usuario como owner
+                }
+
+                let nuevoProducto = await productosService.agregarProducto({ title, description, price, category, stock, owner });
+                console.log(nuevoProducto);
+                res.setHeader('Content-Type', 'application/json');
+                return res.status(201).json({ payload: nuevoProducto });
+            } catch (error) {
+                console.error('Error en addProduct:', error); // Depuración
+                next(error)
+            }
 } 
 
 static updateProduct=async(req, res) => {
@@ -83,15 +103,27 @@ static updateProduct=async(req, res) => {
     }
 }
 
-static deleteProduct=async(req, res) => {
+static deleteProduct=async(req, res, next) => {
     const productId = req.params.pid;
-    try {
-        await productosService.eliminarProducto(productId);
-        res.status(200).json({ status: 'success', message: 'Producto eliminado correctamente' });
-    } catch (error) {
-        res.status(500).json({ status: 'error', error: 'Error al eliminar producto' });
+
+        try {
+            const user = req.user;
+            const product = await productosService.obtenerProductoPorId(productId);
+
+            if (!product) {
+                return res.status(404).json({ error: 'Producto no encontrado' });
+            }
+
+            if (user.role === 'premium' && product.owner !== user.email) {
+                return res.status(403).json({ error: 'No tiene permisos para eliminar este producto' });
+            }
+
+            await productosService.eliminarProducto(productId);
+            res.status(200).json({ status: 'success', message: 'Producto eliminado correctamente' });
+        } catch (error) {
+            next(error);
+        }
     }
-}
 
 static getAllProductsPaginate = async (req, res) => {
     const isAuthenticated = req.user ? true : false;
@@ -227,13 +259,18 @@ static ProductIdAddToCart = async (req, res) => {
             return res.status(400).send("Producto no disponible en stock");
         }
 
+        // Verificar si el usuario premium es el dueño del producto
+        if (req.user.rol === 'premium' && product.owner === req.user.email) {
+            return res.status(403).send("No puede agregar a su carrito un producto que le pertenece");
+        }
+
         // Obtener el usuario con su carrito
         let user = await usuariosDAO.getUserById(userId);
         let cart;
 
         if (!user.cart) {
             // Crear un nuevo carrito si el usuario no tiene uno
-            cart = await cartDAO.createCart({ products: [productId]});
+            cart = await cartDAO.createCart({ products: [productId] });
             // Asociar el carrito al usuario
             await usuariosDAO.updateUserCart(userId, cart._id);
         } else {
@@ -246,9 +283,6 @@ static ProductIdAddToCart = async (req, res) => {
             console.log("Agregando producto al carrito. ProductId:", productId, "CartId:", cart._id);
 
             // Verificar si el producto ya está en el carrito
-            // if (!cart.products.includes(productId)) {
-            //     cart.products.push(productId);  // Agregar el ID del producto directamente
-            // }
             const existingProduct = cart.products.find(p => p.toString() === productId);
 
             if (existingProduct) {
@@ -257,7 +291,6 @@ static ProductIdAddToCart = async (req, res) => {
                 cart.products.push(productId);
                 await cartDAO.updateOneCart(cart);
             }
-
         }
 
         console.log("Carrito después de agregar producto:", cart);

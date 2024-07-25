@@ -2,6 +2,8 @@ import express from 'express';
 import ProductManagerMongo from '../dao/productManager.js';
 import ProductosController from "../controller/productos.controller.js";
 import { auth } from '../middlewares/auth.js';
+import passport from 'passport';
+
 
 
 
@@ -43,7 +45,7 @@ router.get('/:pid', ProductosController.getProductById)
 
 // Agregar un nuevo producto
 //    router.post('/addProduct', ProductosController.addProduct)
-router.post('/addProduct', auth(["admin"]),ProductosController.addProduct)
+router.post('/addProduct', passport.authenticate('jwt', { session: false }), auth(['premium', 'admin']), ProductosController.addProduct);
 // router.post('/', async (req, res) => {
 //     let { title, description, price, category } = req.body;
 //     if (!title || !description || !price || !category) {
@@ -75,7 +77,7 @@ router.put('/:pid', ProductosController.updateProduct)
 // });
 
 // Eliminar un producto por ID
-router.delete('/:pid', ProductosController.deleteProduct)
+router.delete('/:pid', passport.authenticate('jwt', { session: false }), auth(['premium', 'admin']), ProductosController.deleteProduct);
 // router.delete('/:pid', async (req, res) => {
 //     try {
 //         await productManager.deleteProduct(req);

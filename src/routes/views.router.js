@@ -106,7 +106,7 @@ router.get("/product/:pid", ProductosController.getProductById, (req,res)=>{
 });
 
 // Ruta para agregar un producto al carrito
-router.post("/products/:pid/add-to-cart", passportCall("jwt"), auth(["user"]), ProductosController.ProductIdAddToCart)
+router.post("/products/:pid/add-to-cart", passportCall("jwt"), auth(["user", "premium"]), ProductosController.ProductIdAddToCart)
 // router.post("/products/:pid/add-to-cart", async (req, res) => {
 //     const productId = req.params.pid;
 //     const cartId = req.body.cartId || "0";  // Valor por defecto si no se envía

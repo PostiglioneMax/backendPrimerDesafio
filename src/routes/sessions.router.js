@@ -5,6 +5,9 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import { CartMongoDAO as CartDAO } from '../dao/cartMongoDAO.js';
+import RecuperoController from '../controller/recupero.controller.js';
+import UsuariosController from '../controller/usuario.controller.js';
+import { auth } from '../middlewares/auth.js';
 export const router=Router()
 
 let cartDAO=new CartDAO()
@@ -120,6 +123,7 @@ router.post('/login', passport.authenticate("login", {session: false, failureRed
             // SEGUNDO TRY                        
              let usuario=req.user
              usuario={...usuario}
+             delete usuario.profileGithub
              delete usuario.password
              // req.session.usuario=usuario // en un punto de mi proyecto
              let token=jwt.sign(usuario, SECRET, {expiresIn:"1h"})
@@ -156,5 +160,15 @@ router.get('/logout',(req,res)=>{
     res.clearCookie('coderCookie'); // Elimina la cookie que contiene el token
     return res.redirect('/login'); // Redirige al usuario a la página de inicio de sesión
 });
+
+router.post('/recupero01', RecuperoController.recupero01)
+
+router.get('/recupero02', RecuperoController.recupero02)
+
+router.post('/recupero03', RecuperoController.recupero03);
+
+router.put('/premium/:uid', passport.authenticate('jwt', { session: false }), auth(['admin']), UsuariosController.changeUserRole);
+
+
 
 export default router;

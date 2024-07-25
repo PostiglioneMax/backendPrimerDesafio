@@ -9,6 +9,8 @@ import { CartMongoDAO as CartDAO } from "./dao/cartMongoDAO.js";
 import { title } from "process";
 import winston from "winston";
 import { config } from "./config/config.js";
+import nodemailer from "nodemailer"
+
 
 
 const cartDAO = new CartDAO()
@@ -171,3 +173,26 @@ export const middLogg=(req, res, next)=>{
   req.logger=logger
   next()
 }
+
+const trasnporter=nodemailer.createTransport(
+    {
+        service:"gmail", 
+        port:"587",
+        auth:{
+            user:"postisama22@gmail.com",
+            pass: "dpunkrllitpahene"
+        }
+    }
+)
+
+export const enviarMail=async(to, subject, message)=>{
+    return await trasnporter.sendMail(
+        {
+            from:"MaxX Steal postisama22@gmail.com",
+            to, subject, 
+            html: message
+        }
+    )
+}
+
+//dpun krll itpa hene

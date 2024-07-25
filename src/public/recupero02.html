@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/styles.css">
+    <title>Restablecer Contraseña</title>
+</head>
+<body>
+    <h2>Restablecer Contraseña</h2>
+    <hr>
+    <form id="resetForm" action="/api/sessions/recupero03" method="post">
+        <input type="hidden" id="token" name="token" value="">
+        <label for="password">Nueva Contraseña:</label>
+        <input type="password" id="password" name="password" required>
+        <label for="password2">Repetir Contraseña:</label>
+        <input type="password" id="password2" name="password2" required>
+        <button type="submit">Enviar</button>
+    </form>
+    <p id="message"></p>
+
+    <script>
+        // Obtener el token de los parámetros de la URL y establecerlo en el formulario
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        console.log('Token en el campo oculto:', token); // Verificación adicional
+        document.getElementById('token').value = token;
+    </script>
+</body>
+</html>
