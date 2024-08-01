@@ -24,7 +24,7 @@ export default class RecuperoController{
         }
         
     
-        delete usuario.password // eliminar datos confidenciales...
+        delete usuario.password
         delete usuario.profileGithub
         let token=jwt.sign(usuario, config.SECRET, {expiresIn:"1h"})
         console.log('Clave secreta:', config.SECRET);

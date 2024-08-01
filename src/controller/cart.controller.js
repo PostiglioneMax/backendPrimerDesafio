@@ -100,15 +100,12 @@ export default class CartController{
                 return res.status(404).json({ error: "Carrito no encontrado" });
             }
 
-            // Limpiar los productos del carrito
             const updatedCart = await cartDAO.updateOneCart2(cartId, { products: [] });
 
-            // Actualizar el usuario para reflejar el carrito actualizado
             const usuario = await usuariosDAO.updateUserCart(cart.userId, updatedCart._id);
 
             req.user=usuario
 
-            // Responder con éxito y el carrito actualizado
             res.status(200).json({ message: "Carrito limpiado correctamente", cart: updatedCart });
         } catch (error) {
             console.error("Error al limpiar el carrito:", error.message);
@@ -119,25 +116,24 @@ export default class CartController{
 
 
 static cartPurchase = async (req, res) => {
+    console.log(req.user)
     const cartId = req.user.cart;
     console.log("Recibido cartId:", cartId);  
 
   try {
-    const cart = await cartDAO.getOneById(cartId); // Asumiendo que el modelo de carrito tiene un esquema con productos referenciados
+    const cart = await cartDAO.getOneById(cartId); 
 
     if (!cart) {
       return res.status(404).json({ message: 'Carrito no encontrado' });
     }
 
-    const purchaser = req.user.email; // Asumiendo que tienes autenticación y puedes obtener el email del usuario
+    const purchaser = req.user.email; 
     const { products } = cart;
 
     const { ticket, failedPurchaseIds, remainingProducts } = await ticketService.processPurchase(products, purchaser);
 
     await cartDAO.updateOneCart2(cartId, { products: remainingProducts });
     console.log("CARRITO POST COMPRA PAPAA;", cartId);
-    // cart.products = remainingProducts;
-    // await cart.save();
 
     res.json({
       message: 'Compra procesada',

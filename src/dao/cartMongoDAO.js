@@ -5,7 +5,7 @@ import { usuariosModelo } from "./models/usuario.modelo.js";
 export class CartMongoDAO{
 
 
-    async getOneBy(filtro={}){   // filtro = {email:"juan@test.com", apellido:"Perez"}
+    async getOneBy(filtro={}){  
         return await modeloCart.findOne(filtro)
     }
 
@@ -20,7 +20,7 @@ export class CartMongoDAO{
         return await modeloCart.create(cart)
     } 
 
-    async updateOneCart(cart){   // filtro = {email:"juan@test.com", apellido:"Perez"}
+    async updateOneCart(cart){  
         return await modeloCart.findByIdAndUpdate(
             cart._id,
             { $set: { products: cart.products } },

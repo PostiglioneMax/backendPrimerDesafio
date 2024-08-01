@@ -19,15 +19,15 @@
 
 <script>
     document.getElementById('loginForm').addEventListener('submit', async function(event) {
-    event.preventDefault(); // Evitar el comportamiento predeterminado de envío
+    event.preventDefault();
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const method = document.getElementById('_method').value; // Obtener el valor de _method
+    const method = document.getElementById('_method').value;
 
     try {
         const response = await fetch('/api/sessions/login', {
-            method: method, // Usar el método obtenido
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -35,18 +35,15 @@
         });
 
         if (!response.ok) {
-            // Si la respuesta no es OK (es decir, error en login), manejar el error
-            const errorMessage = await response.text(); // Obtener el mensaje de error como texto
-            throw new Error(errorMessage); // Lanzar un error con el mensaje obtenido
+            const errorMessage = await response.text();
+            throw new Error(errorMessage);
         }
 
-        const data = await response.json(); // Intentar parsear la respuesta como JSON
+        const data = await response.json();
 
-        // Si todo está bien, redirigir o manejar la respuesta según sea necesario
         window.location.href = data.redirectUrl || '/';
 
     } catch (error) {
-        // Capturar y manejar cualquier error ocurrido durante la solicitud
         console.error('Error en la solicitud:', error);
         document.getElementById('mensaje').innerText = error.message || 'Error en el login';
     }

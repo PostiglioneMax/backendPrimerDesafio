@@ -12,7 +12,7 @@ export class ProductosMongoDAO{
         return await modeloProduct.paginate({}, { ...options, lean: true });
     }
 
-    async getOneBy(filtro={}){   // filtro = {email:"juan@test.com", apellido:"Perez"}
+    async getOneBy(filtro={}){  
         return await modeloProduct.findOne(filtro)
     }
 
@@ -21,20 +21,16 @@ export class ProductosMongoDAO{
         console.log(productId)
     }
 
-//UPDATE
-    async updateOneProduct(pid, updatedFields){   // filtro = {email:"juan@test.com", apellido:"Perez"}
+    async updateOneProduct(pid, updatedFields){   
         return await modeloProduct.findByIdAndUpdate(pid, updatedFields, { new: true })
-        // GUARDA CON EL ´POPULATE QUE HABIA ANTES!!!!!!!!!!!!!!!!...........
     }
 
 
-//CREATE
     async addProduct(producto){
         return await modeloProduct.create(producto)
     } 
 
-//DELETE
-    async deleteProduct(productId){   // filtro = {email:"juan@test.com", apellido:"Perez"}
+    async deleteProduct(productId){
         return await modeloProduct.findByIdAndDelete(productId)
     }
 

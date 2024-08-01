@@ -16,18 +16,15 @@ class ProductosFsDAO {
     }
   }
 
-  // Método para leer el archivo y parsearlo
   async _readFile() {
     const data = await fs.promises.readFile(filePath, 'utf-8');
     return JSON.parse(data);
   }
 
-  // Método para escribir en el archivo
   async _writeFile(data) {
     await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
   }
 
-  // READ
   async getAllProducts(filtro = {}) {
     const products = await this._readFile();
     return products.filter(product => {
@@ -78,7 +75,6 @@ class ProductosFsDAO {
     return updatedProduct;
   }
 
-  // CREATE
   async addProduct(producto) {
     const products = await this._readFile();
     const newProduct = { ...producto, _id: Date.now().toString() }; // Generar un ID único simple
@@ -87,7 +83,6 @@ class ProductosFsDAO {
     return newProduct;
   }
 
-  // DELETE
   async deleteProduct(productId) {
     const products = await this._readFile();
     const index = products.findIndex(product => product._id === productId);

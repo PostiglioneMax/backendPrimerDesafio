@@ -14,25 +14,6 @@ export class CartManager {
         }
     }
 
-    // async getOrCreateCart(cartId) {
-    //     try {
-    //         if (!mongoose.Types.ObjectId.isValid(cartId)) {
-    //             throw new Error("ID de carrito inválido");
-    //         }
-            
-    //         const cart = await modeloCart.findById(cartId);
-            
-    //         if (!cart) {
-    //             const newCart = new modeloCart({ products: [] });
-    //             const savedCart = await newCart.save();
-    //             return savedCart;
-    //         }
-            
-    //         return cart;
-    //     } catch (error) {
-    //         throw new Error("Error al obtener o crear el carrito");
-    //     }
-    // }
     async getOrCreateCart(cartId) {
         try {
             if (cartId === "0" || !mongoose.Types.ObjectId.isValid(cartId)) {
@@ -56,13 +37,6 @@ export class CartManager {
             throw new Error("Error al obtener o crear el carrito: " + error.message);
         }
     }
-    // async updateCart(cart) {
-    //     try {
-    //         await cart.save();
-    //     } catch (error) {
-    //         throw new Error("Error al actualizar el carrito: " + error.message);
-    //     }
-    // }
 
     async updateCart(cart) {
         try {

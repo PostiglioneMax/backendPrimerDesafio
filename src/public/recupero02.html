@@ -20,10 +20,9 @@
     <p id="message"></p>
 
     <script>
-        // Obtener el token de los parámetros de la URL y establecerlo en el formulario
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
-        console.log('Token en el campo oculto:', token); // Verificación adicional
+        console.log('Token en el campo oculto:', token);
         document.getElementById('token').value = token;
     </script>
 </body>

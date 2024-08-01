@@ -250,7 +250,6 @@ static ProductIdAddToCart = async (req, res) => {
     const userId = req.user._id;  // Obtener el ID del usuario logueado
 
     try {
-        // Verificar si el producto está disponible
         const product = await productosService.obtenerProductoPorId(productId);
         if (!product) {
             return res.status(404).send("Producto no encontrado");
@@ -259,22 +258,20 @@ static ProductIdAddToCart = async (req, res) => {
             return res.status(400).send("Producto no disponible en stock");
         }
 
-        // Verificar si el usuario premium es el dueño del producto
         if (req.user.rol === 'premium' && product.owner === req.user.email) {
             return res.status(403).send("No puede agregar a su carrito un producto que le pertenece");
         }
 
-        // Obtener el usuario con su carrito
         let user = await usuariosDAO.getUserById(userId);
         let cart;
 
         if (!user.cart) {
-            // Crear un nuevo carrito si el usuario no tiene uno
+
             cart = await cartDAO.createCart({ products: [productId] });
-            // Asociar el carrito al usuario
+
             await usuariosDAO.updateUserCart(userId, cart._id);
         } else {
-            // Obtener el carrito existente
+
             cart = await cartDAO.getOneById(user.cart._id);
             if (!cart) {
                 return res.status(404).send("Carrito no encontrado");
@@ -282,7 +279,6 @@ static ProductIdAddToCart = async (req, res) => {
 
             console.log("Agregando producto al carrito. ProductId:", productId, "CartId:", cart._id);
 
-            // Verificar si el producto ya está en el carrito
             const existingProduct = cart.products.find(p => p.toString() === productId);
 
             if (existingProduct) {

@@ -32,11 +32,9 @@ const port = config.PORT;
 const productManager = new ProductManagerMongo();
 
 const io = new Server(server);
-// Socket.io - Manejar conexiones
+
 io.on("connection", (socket) => {
     console.log("Cliente conectado");
-
-    // Websocket
 
     socket.on("productAdded", (product) => {
         io.emit("updateProducts", productManager.getProducts());
@@ -62,25 +60,10 @@ app.use(methodOverride((req, res) => {
 }));
 
 app.use(cookieParser(SECRET))
-//Session YA NO VA, MIGRA A JWT
-// app.use(session(
-//     {
-//         secret:"CoderCoder123",
-//         resave: true, saveUninitialized: true,
-//         store: MongoStore.create(
-//             {
-//                 mongoUrl: "mongodb+srv://postisama22:maxi123@cluster0.hjmvuac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-//                 ttl: 60
-//             }
-//         )
-//     }
-// ))
-// 2) Inicializo passport y sus configuraciones en app.js
+
 initPassport()
 app.use(passport.initialize())
-// app.use(passport.session())
 
-//handlebars
 app.engine('handlebars', engine({
     defaultLayout: 'main',
     handlebars: Handlebars,
@@ -93,18 +76,14 @@ app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
 
 
-// alta de contenido static
 app.use(express.static(path.join(__dirname, "/public")));
 
 app.use("/api/sessions", sessionsRouter);
 
-// Route de productos
 app.use("/api/products", productsRouter);
 
-// Rutas del cart
 app.use("/api/carts", cartRouter);
 
-// Ruta para la vista home
 app.use("/", vistasRouter);
 
 app.use(handleError)

@@ -4,7 +4,6 @@ import mongoose from 'mongoose';
 
 
 
-// modeloProduct;
 class ProductManager {
     constructor(path) {
         //        this.path = path;
@@ -120,15 +119,6 @@ class ProductManager {
 
 export class ProductManagerMongo {
 
-    // async getProducts() {
-    //     try {
-    //         const products = await modeloProduct.find().lean();
-    //         return products;
-    //     } catch (error) {
-    //         throw new Error("Error al obtener productos desde la base de datos");
-    //     }
-    // }
-
     async getProducts(query) {
         try {
             const { limit = 10, page = 1 } = query;
@@ -194,47 +184,6 @@ export class ProductManagerMongo {
         }
     }
 
-    // async getProductById(req, res) {
-    //     try {
-    //         const { pid } = req.params;
-    //         const product = await modeloProduct.findById(pid);
-
-    //         if (!product) {
-    //             return res.status(404).json({ status: "error", message: "Producto no encontrado" });
-    //         }
-
-    //         res.status(200).json({ status: "success", payload: product });
-    //     } catch (error) {
-    //         res.status(500).json({ status: "error", error: error.message });
-    //     }
-    // }
-    // async getProductById(productId) {
-    //     try {
-    //         if (!mongoose.Types.ObjectId.isValid(productId)) {
-    //             throw new Error("ID de producto inválido");
-    //         }
-    
-    //         const product = await modeloProduct.findById(productId);
-    
-    //         if (!product) {
-    //             throw new Error("Producto no encontrado");
-    //         }
-    
-    //         return product;
-    //     } catch (error) {
-    //         console.error("Error al obtener el producto:", error);
-    //         throw new Error("Error al obtener el producto");
-    //     }
-    // }
-    // async getProductById(productId) {
-    //     try {
-    //         const product = await modeloProduct.findById(productId);
-    //         return product;
-    //     } catch (error) {
-    //         throw new Error("Error al obtener el producto");
-    //     }
-    // }
-
     async getProductById(productId) {
         try {
             const product = await modeloProduct.findById(productId).lean();
@@ -251,23 +200,12 @@ export class ProductManagerMongo {
 
     async addProduct(producto) {
         try {
-            //  const { title, description, price, category } = req.body;
-    
-            //  const newProduct = new modeloProduct({
-            //      title,
-            //      description,
-            //      price,
-            //      category,
-            //      availability: true, // Asumiendo que la disponibilidad es verdadera por defecto
-            //  });
 
-            // return await newProduct.create(newProduct);
             console.log(producto);
             const newProduct =await modeloProduct.create(producto);
             console.log("Producto agregado correctamente:", newProduct);
             io.emit("productAdded",newProduct);
             return newProduct
-        //return res.status(201).json({ status: "success", message: "Producto agregado correctamente", payload: producto });
 
         } catch (error) {
             throw new Error(error.message);
