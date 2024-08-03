@@ -163,8 +163,6 @@ if (logger.transports.length === 0) {
 }
 
 export const middLogg=(req, res, next)=>{
-  console.log('Pasaste por la ADUANA de los LOGS');
-  logger.info("Pasaste por ADUANA PA")
   req.logger=logger
   next()
 }

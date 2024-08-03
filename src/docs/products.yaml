@@ -1,0 +1,137 @@
+# src/docs/products.yaml
+openapi: 3.0.0
+info:
+  title: Products API
+  version: 1.0.0
+  description: API for managing products
+paths:
+  /api/products:
+    get:
+      summary: Get all products
+      tags: [Products]
+      responses:
+        200:
+          description: A list of all products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /api/products/{pid}:
+    get:
+      summary: Get a product by ID
+      tags: [Products]
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: The product ID
+      responses:
+        200:
+          description: Product details by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        404:
+          description: Product not found
+    put:
+      summary: Update a product by ID
+      tags: [Products]
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: The product ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        200:
+          description: The product was updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        404:
+          description: Product not found
+    delete:
+      summary: Delete a product by ID
+      tags: [Products]
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: The product ID
+      responses:
+        200:
+          description: The product was deleted
+        404:
+          description: Product not found
+  /api/products/addProduct:
+    post:
+      summary: Add a new product
+      tags: [Products]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        201:
+          description: The product was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - name
+        - price
+      properties:
+        id:
+          type: string
+          description: The auto-generated id of the product
+        name:
+          type: string
+          description: The name of the product
+        price:
+          type: number
+          description: The price of the product
+        description:
+          type: string
+          description: The description of the product
+        category:
+          type: string
+          description: The category of the product
+        stock:
+          type: integer
+          description: The stock quantity of the product
+      example:
+        id: d5fE_asz
+        name: Widget
+        price: 29.99
+        description: A useful widget
+        category: Gadgets
+        stock: 100
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT

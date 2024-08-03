@@ -1,0 +1,209 @@
+# src/docs/cart.yaml
+openapi: 3.0.0
+info:
+  title: Cart API
+  version: 1.0.0
+  description: API for managing cart
+paths:
+  /api/carts/{cartId}:
+    get:
+      summary: Get or create a cart by ID
+      tags: [Cart]
+      parameters:
+        - in: path
+          name: cartId
+          schema:
+            type: string
+          required: true
+          description: The cart ID
+      responses:
+        200:
+          description: The cart details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        404:
+          description: The cart was not found
+    put:
+      summary: Update the cart with an array of products
+      tags: [Cart]
+      parameters:
+        - in: path
+          name: cartId
+          schema:
+            type: string
+          required: true
+          description: The cart ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CartItem'
+      responses:
+        200:
+          description: The cart was updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        404:
+          description: The cart was not found
+    delete:
+      summary: Delete all products from the cart
+      tags: [Cart]
+      parameters:
+        - in: path
+          name: cartId
+          schema:
+            type: string
+          required: true
+          description: The cart ID
+      responses:
+        200:
+          description: The cart was cleared
+        404:
+          description: The cart was not found
+  /api/carts/{cartId}/add:
+    post:
+      summary: Add a product to the cart
+      tags: [Cart]
+      parameters:
+        - in: path
+          name: cartId
+          schema:
+            type: string
+          required: true
+          description: The cart ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+      responses:
+        201:
+          description: The product was added to the cart
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItem'
+        404:
+          description: The cart was not found
+  /api/carts/{cartId}/{productId}:
+    delete:
+      summary: Delete a product from the cart
+      tags: [Cart]
+      parameters:
+        - in: path
+          name: cartId
+          schema:
+            type: string
+          required: true
+          description: The cart ID
+        - in: path
+          name: productId
+          schema:
+            type: string
+          required: true
+          description: The product ID
+      responses:
+        200:
+          description: The product was removed from the cart
+        404:
+          description: The cart or product was not found
+  /api/carts/{cartId}/{productId}/quantity:
+    put:
+      summary: Update the quantity of a product in the cart
+      tags: [Cart]
+      parameters:
+        - in: path
+          name: cartId
+          schema:
+            type: string
+          required: true
+          description: The cart ID
+        - in: path
+          name: productId
+          schema:
+            type: string
+          required: true
+          description: The product ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  description: The quantity of the product
+      responses:
+        200:
+          description: The product quantity was updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItem'
+        404:
+          description: The cart or product was not found
+  /api/carts/{cid}/purchase:
+    post:
+      summary: Purchase the cart
+      tags: [Cart]
+      parameters:
+        - in: path
+          name: cid
+          schema:
+            type: string
+          required: true
+          description: The cart ID
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: The cart was purchased
+components:
+  schemas:
+    Cart:
+      type: object
+      required:
+        - id
+        - products
+      properties:
+        id:
+          type: string
+          description: The auto-generated id of the cart
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+      example:
+        id: 60d0fe4f5311236168a109ca
+        products:
+          - productId: 60d0fe4f5311236168a109cb
+            quantity: 2
+    CartItem:
+      type: object
+      required:
+        - productId
+        - quantity
+      properties:
+        productId:
+          type: string
+          description: The id of the product
+        quantity:
+          type: integer
+          description: The quantity of the product
+      example:
+        productId: 60d0fe4f5311236168a109cb
+        quantity: 2
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT

@@ -21,6 +21,7 @@ import passport from "passport";
 import cookieParser from "cookie-parser";
 import { config } from "./config/config.js";
 import { handleError } from "./middlewares/handleErrors.js";
+import swaggerSetup from "./config/swagger.js";
 
 
 
@@ -88,6 +89,9 @@ app.use("/", vistasRouter);
 
 app.use(handleError)
 
+swaggerSetup(app);
+
+
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
 });
@@ -98,15 +102,15 @@ const connect = async () => {
         await mongoose.connect(config.MONGO_URL, {
             dbName: "DataBase"
         });
-        logger.info("esto es mi cpu-----", os.cpus())
-        logger.info("esto es mi cpu-----", os.cpus().length)
+        // logger.info("esto es mi cpu-----", os.cpus())
+        // logger.info("esto es mi cpu-----", os.cpus().length)
         console.log("DB Online!!...");
         logger.error("ESTO ES UN fatal")
-        logger.error("ESTO ES UN error")
-        logger.warning("ESTO ES UN warning")
-        logger.info("SE INICIO EL SERVER")
-        logger.http("ESTO ES UN http")
-        logger.debug("ESTO ES UN DEBUG")
+        // logger.error("ESTO ES UN error")
+        // logger.warning("ESTO ES UN warning")
+        // logger.info("SE INICIO EL SERVER")
+        // logger.http("ESTO ES UN http")
+        // logger.debug("ESTO ES UN DEBUG")
 
         console.log(config.MODE);
     } catch (error) {
@@ -115,3 +119,5 @@ const connect = async () => {
 };
 
 connect();
+
+export default app

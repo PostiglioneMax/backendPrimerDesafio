@@ -69,12 +69,14 @@ router.get("/product/:pid", ProductosController.getProductById, (req,res)=>{
 router.post("/products/:pid/add-to-cart", passportCall("jwt"), auth(["user", "premium"]), ProductosController.ProductIdAddToCart)
 
 router.get('/cart/:cartId', async (req, res) => {
-    try {
-        const cart = await cartManager.getOrCreateCart(req.params.cartId);
-        res.render('cart', { cart });
-    } catch (error) {
-        res.status(404).send('Carrito no encontrado');
-    }
+  try {
+      const cartId = req.params.cartId;
+      const cart = await cartManager.getOrCreateCart(cartId);
+      res.render('cart', { cart });
+  } catch (error) {
+      console.error(error);
+      res.status(404).send('Carrito no encontrado');
+  }
 });
 
 router.get('/error', (req,res)=>{
