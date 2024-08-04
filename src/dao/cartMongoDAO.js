@@ -1,5 +1,4 @@
 import modeloCart from "./models/cart.modelo.js"
-import { usuariosModelo } from "./models/usuario.modelo.js";
 
 
 export class CartMongoDAO{

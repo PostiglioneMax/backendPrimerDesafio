@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import handlebars from "express-handlebars";
 import { engine } from 'express-handlebars';
 import Handlebars from 'handlebars';
+import { allowInsecurePrototypeAccess } from '@handlebars/allow-prototype-access';
 import path from "path";
 import { Server } from "socket.io";
 import MongoStore from "connect-mongo";
@@ -14,6 +15,7 @@ import os from "os"
 import sessionsRouter from "./routes/sessions.router.js";
 import productsRouter from "./routes/product.router.js";
 import cartRouter from "./routes/cart.router.js";
+import userRouter from "./routes/user.router.js";
 import vistasRouter from "./routes/views.router.js";
 import ProductManagerMongo from "./dao/productManager.js";
 import __dirname, { SECRET, logger, middLogg } from "./utils.js";
@@ -22,8 +24,6 @@ import cookieParser from "cookie-parser";
 import { config } from "./config/config.js";
 import { handleError } from "./middlewares/handleErrors.js";
 import swaggerSetup from "./config/swagger.js";
-
-
 
 
 const app = express();
@@ -50,7 +50,6 @@ io.on("connection", (socket) => {
     });
 });
 
-//LOGGER
 app.use(middLogg)
 
 app.use(express.json());
@@ -65,13 +64,20 @@ app.use(cookieParser(SECRET))
 initPassport()
 app.use(passport.initialize())
 
+Handlebars.registerHelper('eq', function(a, b, options) {
+    if (a === b) {
+        return options.fn(this);
+    }
+    return options.inverse(this);
+});
+
 app.engine('handlebars', engine({
     defaultLayout: 'main',
-    handlebars: Handlebars,
-    runtimeOptions: {
-        allowProtoPropertiesByDefault: true,
-        allowProtoMethodsByDefault: true
-    }
+    handlebars: allowInsecurePrototypeAccess(Handlebars),
+    // runtimeOptions: {
+    //     allowProtoPropertiesByDefault: true,
+    //     allowProtoMethodsByDefault: true
+    // }
 }));
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
@@ -84,6 +90,8 @@ app.use("/api/sessions", sessionsRouter);
 app.use("/api/products", productsRouter);
 
 app.use("/api/carts", cartRouter);
+
+app.use('/api/users', userRouter);
 
 app.use("/", vistasRouter);
 
@@ -104,8 +112,8 @@ const connect = async () => {
         });
         // logger.info("esto es mi cpu-----", os.cpus())
         // logger.info("esto es mi cpu-----", os.cpus().length)
-        console.log("DB Online!!...");
-        logger.error("ESTO ES UN fatal")
+        // console.log("DB Online!!...");
+        logger.info("DB Online!!...")
         // logger.error("ESTO ES UN error")
         // logger.warning("ESTO ES UN warning")
         // logger.info("SE INICIO EL SERVER")

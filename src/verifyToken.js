@@ -5,7 +5,6 @@ const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjVlNzc2Y2U4NTJl
 
 try {
     const decoded = jwt.verify(token, config.SECRET);
-    console.log('Token válido:', decoded);
 } catch (error) {
     console.error('Token inválido o expirado:', error);
 }

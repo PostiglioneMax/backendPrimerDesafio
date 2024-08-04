@@ -1,13 +1,12 @@
 import TicketService from "../Services/ticket.service.js";
 import { CartMongoDAO as CartDAO } from "../dao/cartMongoDAO.js";
-import modeloCart from "../dao/models/cart.modelo.js";
 import { UsuariosMongoDAO } from "../dao/usuariosMongoDAO.js";
 
 const usuariosDAO = new UsuariosMongoDAO();
 const ticketService = new TicketService();
 const cartDAO = new CartDAO()
 
-export default class CartController{
+export default class CartController {
 
     static getCartById = async (req, res) => {
         const { cartId } = req.params;
@@ -28,15 +27,15 @@ export default class CartController{
                 const cart = await newCart.save();
                 return cart;
             }
- 
+
             const cart = await cartDAO.getOneById(cartId)
-            
+
             const productObjectId = mongoose.Types.ObjectId(productId);
-            
+
             cart.products.push(productObjectId);
-            
+
             await cartDAO.updateOneCart(cart);
-    
+
             return cart;
         } catch (error) {
             throw new Error("Error al agregar el producto al carrito: " + error.message);
@@ -47,7 +46,7 @@ export default class CartController{
         const { cartId, productId } = req.params;
         try {
             const cart = await cartDAO.getOneById(cartId);
-            
+
             cart.products = cart.products.filter(product => product.productId.toString() !== productId);
             return await cart.save();
         } catch (error) {
@@ -70,21 +69,20 @@ export default class CartController{
     static updateProductQuantity = async (req, res) => {
         const { cartId, productId } = req.params;
         const { quantity } = req.body;
-        console.log("PRODUCTid....!!", productId);
         try {
             const cart = await cartDAO.getOneById(cartId);
 
-            if(!cart){
+            if (!cart) {
                 res.status(500).json({ error: error.message })
             }
-            
+
             const product = cart.products.find(product => product.productId.toString() === productId);
             if (product) {
                 product.quantity = quantity;
             }
-            
+
             await cart.save();
-            
+
             return cart;
         } catch (error) {
             throw new Error("Error al actualizar la cantidad del producto en el carrito");
@@ -104,7 +102,7 @@ export default class CartController{
 
             const usuario = await usuariosDAO.updateUserCart(cart.userId, updatedCart._id);
 
-            req.user=usuario
+            req.user = usuario
 
             res.status(200).json({ message: "Carrito limpiado correctamente", cart: updatedCart });
         } catch (error) {
@@ -112,38 +110,37 @@ export default class CartController{
             res.status(500).json({ error: "Error al limpiar el carrito" });
         }
     }
-    
 
 
-static cartPurchase = async (req, res) => {
-    console.log(req.user)
-    const cartId = req.user.cart;
-    console.log("Recibido cartId:", cartId);  
 
-  try {
-    const cart = await cartDAO.getOneById(cartId); 
+    static cartPurchase = async (req, res) => {
 
-    if (!cart) {
-      return res.status(404).json({ message: 'Carrito no encontrado' });
-    }
+        const cartId = req.user.cart;
 
-    const purchaser = req.user.email; 
-    const { products } = cart;
+        try {
+            const cart = await cartDAO.getOneById(cartId);
 
-    const { ticket, failedPurchaseIds, remainingProducts } = await ticketService.processPurchase(products, purchaser);
+            if (!cart) {
+                return res.status(404).json({ message: 'Carrito no encontrado' });
+            }
 
-    await cartDAO.updateOneCart2(cartId, { products: remainingProducts });
-    console.log("CARRITO POST COMPRA PAPAA;", cartId);
+            const purchaser = req.user.email;
+            const { products } = cart;
 
-    res.json({
-      message: 'Compra procesada',
-      ticket,
-      failedPurchaseIds,
-      remainingProducts
-    });
-  } catch (error) {
-    res.status(500).json({ message: `Error al procesar la compra: ${error.message}` });
-  }
-};
+            const { ticket, failedPurchaseIds, remainingProducts } = await ticketService.processPurchase(products, purchaser);
+
+            await cartDAO.updateOneCart2(cartId, { products: remainingProducts });
+            console.log("CARRITO POST COMPRA PAPAA;", cartId);
+
+            res.json({
+                message: 'Compra procesada',
+                ticket,
+                failedPurchaseIds,
+                remainingProducts
+            });
+        } catch (error) {
+            res.status(500).json({ message: `Error al procesar la compra: ${error.message}` });
+        }
+    };
 
 }

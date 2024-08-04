@@ -1,29 +1,23 @@
 import fs from "fs";
 import { modeloProduct } from "./models/product.modelo.js";
-import mongoose from 'mongoose';
 
 
 
 class ProductManager {
     constructor(path) {
-        //        this.path = path;
-        //        this.loadFromFile();
     }
 
     addProduct(productData) {
-        // Validar que todos los campos obligatorios estén presentes
         const { title, description, code, price, stock } = productData;
         if (!title || !description || !code || !price || !stock) {
             throw new Error("Todos los campos son obligatorios, excepto thumbnails.");
         }
 
-        // Validar que no se repita el campo "code"
         const existingProduct = this.products.find((product) => product.code === code);
         if (existingProduct) {
             throw new Error("Ya existe un producto con el mismo código");
         }
 
-        // Agregar el producto al arreglo
         const newProduct = {
             id: this.nextId++,
             title,
@@ -31,23 +25,19 @@ class ProductManager {
             code,
             price,
             stock,
-            status: true, // Por defecto
-            category: productData.category || "", // Puede ser undefined
+            status: true,
+            category: productData.category || "",
             thumbnails: productData.thumbnails || [],
         };
 
         this.products.push(newProduct);
         this.saveToFile();
-        console.log("Producto agregado:", newProduct);
-        // socket io para cuando se agregue
         io.emit("productAdded", newProduct);
 
         return newProduct;
     }
 
     async getProducts() {
-        //    this.loadFromFile();
-        //    return this.products;
         return await modeloProduct.find();
     }
 
@@ -70,7 +60,6 @@ class ProductManager {
             // No se actualiza el ID
             this.products[index] = { ...this.products[index], ...updatedFields, id };
             this.saveToFile();
-            console.log("Producto actualizado:", this.products[index]);
             return this.products[index];
         } else {
             throw new Error("Producto no encontrado");
@@ -84,7 +73,6 @@ class ProductManager {
         if (index !== -1) {
             const deletedProduct = this.products.splice(index, 1);
             this.saveToFile();
-            console.log("Producto eliminado:", deletedProduct);
             io.emit("productDeleted", id);
 
             return deletedProduct;
@@ -98,11 +86,9 @@ class ProductManager {
             const data = fs.readFileSync(this.path, "utf8");
             this.products = JSON.parse(data);
             this.nextId = this.products.reduce((maxId, product) => Math.max(maxId, product.id), 0) + 1;
-            console.log("Datos cargados desde el archivo:", this.products);
         } catch (error) {
             this.products = [];
             this.nextId = 1;
-            console.log("Error al cargar el archivo:", error.message);
         }
     }
 
@@ -110,7 +96,6 @@ class ProductManager {
         try {
             const data = JSON.stringify(this.products, null, 2);
             fs.writeFileSync(this.path, data);
-            console.log("Datos guardados en el archivo:", this.products);
         } catch (error) {
             console.error("Error al guardar en el archivo:", error.message);
         }
@@ -122,15 +107,15 @@ export class ProductManagerMongo {
     async getProducts(query) {
         try {
             const { limit = 10, page = 1 } = query;
-            
+
             const options = {
                 limit: parseInt(limit),
                 page: parseInt(page),
                 lean: true
             };
-    
+
             const result = await modeloProduct.paginate({}, options);
-    
+
             return {
                 products: result.docs,
                 totalPages: result.totalPages,
@@ -143,30 +128,30 @@ export class ProductManagerMongo {
             throw new Error("Error al obtener productos desde la base de datos");
         }
     }
-    
-    
-    
-    
+
+
+
+
 
     async getAllProducts(query) {
         try {
             const { limit = 10, page = 1 } = query;
-            
+
             const options = {
                 limit: parseInt(limit),
                 skip: (parseInt(page) - 1) * parseInt(limit),
             };
-    
+
             const products = await modeloProduct.find({}, null, options).lean();
-    
+
             const totalProducts = await modeloProduct.countDocuments();
             const totalPages = Math.ceil(totalProducts / limit);
             const hasPrevPage = page > 1;
             const hasNextPage = page < totalPages;
-    
+
             const prevLink = hasPrevPage ? `/?limit=${limit}&page=${page - 1}` : null;
             const nextLink = hasNextPage ? `/?limit=${limit}&page=${page + 1}` : null;
-    
+
             return {
                 products,
                 totalPages,
@@ -192,19 +177,13 @@ export class ProductManagerMongo {
             throw new Error("Error al obtener el producto por ID: " + error.message);
         }
     }
-    
-    
-    
-
 
 
     async addProduct(producto) {
         try {
 
-            console.log(producto);
-            const newProduct =await modeloProduct.create(producto);
-            console.log("Producto agregado correctamente:", newProduct);
-            io.emit("productAdded",newProduct);
+            const newProduct = await modeloProduct.create(producto);
+            io.emit("productAdded", newProduct);
             return newProduct
 
         } catch (error) {
@@ -248,9 +227,9 @@ export class ProductManagerMongo {
 
             res.status(200).json({ status: "success", message: "Producto eliminado correctamente" });
         } catch (error) {
-        res.status(500).json({ status: "error", error: error.message });
+            res.status(500).json({ status: "error", error: error.message });
         }
-        }
-        }
-        
-        export default ProductManagerMongo;
+    }
+}
+
+export default ProductManagerMongo;

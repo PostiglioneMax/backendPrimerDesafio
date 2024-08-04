@@ -4,7 +4,6 @@ export let DAO;
 
 switch (config.PERSISTENCE) {
   case "MONGO":
-    // await import('./connDB.js'); // Conexión a la base de datos MongoDB
     DAO = (await import('../dao/productosMongoDAO.js')).ProductosMongoDAO;
     break;
 

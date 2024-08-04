@@ -1,5 +1,3 @@
-import jwt from "jsonwebtoken"
-import { SECRET } from "../utils.js"
 import passport from "passport";
 
 
@@ -24,7 +22,6 @@ export const auth=(accesos=[])=>{
         next()
     }
 }
-// Middleware de autenticación personalizado
 export const authenticateMiddleware = (req, res, next) => {
     passport.authenticate('login', { session: false }, async (err, user, info) => {
         try {

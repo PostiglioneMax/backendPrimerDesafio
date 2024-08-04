@@ -26,8 +26,7 @@ export class CartManager {
                 path: 'products',
                 model: 'Product'
             });
-            console.log("esto es un CART...",cart);
-            
+                        
             if (!cart) {
                 throw new Error("Carrito no encontrado");
             }

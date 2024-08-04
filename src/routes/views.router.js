@@ -2,15 +2,15 @@ import express from "express";
 import ProductManagerMongo from "../dao/productManager.js";
 import CartManager from '../dao/cartManager.js';
 import { auth } from '../middlewares/auth.js';
-import passport from "passport";
 import { checkAuth, logger, passportCall } from "../utils.js";
-import { genSaltSync } from "bcrypt";
 import ProductosController from "../controller/productos.controller.js";
+import { UsuariosMongoDAO as UsuariosDAO } from "../dao/usuariosMongoDAO.js";
 
 
 const router = express.Router();
 const productManager = new ProductManagerMongo("productos.json");
 const cartManager = new CartManager("carts.json");
+const usuariosDAO = new UsuariosDAO()
 
 router.get('/', checkAuth, auth(["public"]), async (req,res)=>{
   
@@ -43,7 +43,7 @@ router.get('/login',checkAuth, auth(["public"]), (req,res)=>{
     res.status(200).render('login', {isAuthenticated})
 })
 
-router.get('/perfil', passportCall("jwt"), auth(["user", "admin"]), (req,res)=>{
+router.get('/perfil', passportCall("jwt"), auth(["user", "admin", "premium"]), (req,res)=>{
 
     const isAuthenticated = req.user ? true : false;
 
@@ -61,11 +61,9 @@ router.get("/product/:pid", ProductosController.getProductById, (req,res)=>{
     const isAuthenticated = req.user ? true : false;
     const usuario = req.user || null;
 
-
     res.status(200).render('detalle', {isAuthenticated, usuario})
 });
 
-// Ruta para agregar un producto al carrito
 router.post("/products/:pid/add-to-cart", passportCall("jwt"), auth(["user", "premium"]), ProductosController.ProductIdAddToCart)
 
 router.get('/cart/:cartId', async (req, res) => {

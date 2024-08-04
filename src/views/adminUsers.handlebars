@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Administración de Usuarios</title>
+</head>
+<body>
+    <h1>Administración de Usuarios</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="user-table-body">
+            {{#each users}}
+            <tr>
+                <td>{{this.nombre}}</td>
+                <td>{{this.email}}</td>
+                <td>
+                    <select data-id="{{this._id}}" class="user-rol-select" data-current-role="{{this.rol}}">
+                        <option value="user">Usuario</option>
+                        <option value="admin">Administrador</option>
+                        <option value="premium">Premium</option>
+                    </select>
+                </td>
+                <td>
+                    <button data-id="{{this._id}}" class="delete-user-btn">Eliminar</button>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.user-rol-select').forEach(select => {
+                const currentRole = select.dataset.currentRole;
+                select.value = currentRole;
+
+                select.addEventListener('change', async event => {
+                    const userId = event.target.dataset.id;
+                    const role = event.target.value;
+                    await fetch(`/api/users/${userId}/rol`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ rol: role })
+                    });
+                });
+            });
+
+            document.querySelectorAll('.delete-user-btn').forEach(button => {
+                button.addEventListener('click', async event => {
+                    const userId = event.target.dataset.id;
+                    await fetch(`/api/users/${userId}`, {
+                        method: 'DELETE'
+                    });
+                    event.target.closest('tr').remove();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

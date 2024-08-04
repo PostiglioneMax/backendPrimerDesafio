@@ -18,18 +18,13 @@ class TicketService {
 
     for (const product of cartProducts) {
       const dbProduct = await productosService.obtenerProductoPorId(product._id);
-      console.log("DB PRODUCCTTT!!!!....", dbProduct);
 
       if (dbProduct && dbProduct.stock >= product.quantity) {
         dbProduct.stock -= product.quantity;
-        // await dbProduct.save();
-        await productosService.actualizarProducto(product._id, {stock:dbProduct.stock})
-        console.log("como quedo el stockk????...", dbProduct);
+        await productosService.actualizarProducto(product._id, { stock: dbProduct.stock })
         successfulPurchaseIds.push(product._id);
-        console.log("SUXESFULL:", successfulPurchaseIds);
       } else {
         failedPurchaseIds.push(product._id);
-        console.log("FALLA2.....:", failedPurchaseIds);
       }
     }
 

@@ -9,9 +9,10 @@ export const usuariosModelo=mongoose.model('usuarios',new mongoose.Schema({
     rol: {
         type: String,
         enum: ['user', 'premium', 'admin'],
-        default: 'user', // valor predeterminado
+        default: 'user',
       },
-    cart: { type: mongoose.Schema.Types.ObjectId, ref: 'Cart' } 
+    cart: { type: mongoose.Schema.Types.ObjectId, ref: 'Cart' },
+    last_connection: { type: Date } 
 },
 {
 timestamps:true, strict:false

@@ -12,7 +12,6 @@ import { config } from "./config/config.js";
 import nodemailer from "nodemailer"
 
 
-
 const cartDAO = new CartDAO()
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,7 +56,6 @@ export const checkAuth = async (req, res, next) => {
 
         req.isAuthenticated = true;
         req.user = decoded;
-        console.log("....req.user!!!",decoded);
         if (req.user.cart) {
           const cart = await cartDAO.getOneById(req.user.cart);
           req.user.cart = cart;
@@ -95,7 +93,6 @@ export const checkAuth2 = async (req, res, next) => {
     next();
   }
 };
-// LOGGER
 
 const customLevels={
   fatal:0,
@@ -116,7 +113,7 @@ export const logger=winston.createLogger(
 
 const transporteFileError=new winston.transports.File({
   level: "error",
-  filename: "./logs/erroresGraves.log",
+  filename: "src/logs/CriticalErrors.log",
   format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.json()
@@ -151,12 +148,12 @@ const transporteConsolaInfo=new winston.transports.Console(
 
 if(config.MODE === "DEV"){
   logger.add(transporteConsolaDebug)
-  console.log('DEV mode: Added Console Debug Transport');
+  logger.info('DEV mode: Added Console Debug Transport');
 }
 if(config.MODE === "PRODU"){
   logger.add(transporteConsolaInfo)
   logger.add(transporteFileError)
-  console.log('PROD mode: Added Console Info and File Error Transports');
+  logger.info('PROD mode: Added Console Info and File Error Transports');
 }
 if (logger.transports.length === 0) {
   console.warn('No transports have been added to the logger!');

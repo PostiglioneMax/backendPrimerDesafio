@@ -27,8 +27,6 @@ export default class RecuperoController{
         delete usuario.password
         delete usuario.profileGithub
         let token=jwt.sign(usuario, config.SECRET, {expiresIn:"1h"})
-        console.log('Clave secreta:', config.SECRET);
-        console.log("TOKEN NUMERO UNO...", token)
         let url=`http://localhost:3000/api/sessions/recupero02?token=${token}`
         let mensaje=`Ha solicitado reinicio de password. Si no fue usted, avise al 
     admin... para continuar haga click <a href="${url}">aqui</a>`
@@ -37,7 +35,6 @@ export default class RecuperoController{
             await enviarMail(email, "Recupero de password", mensaje)
             res.redirect("/recupero01.html?mensaje=Recibira un email en breve. Siga los pasos...")
         } catch (error) {
-            console.log(error);
             res.setHeader('Content-Type','application/json');
             return res.status(500).json(
                 {
@@ -54,8 +51,6 @@ export default class RecuperoController{
 
         try {
             jwt.verify(token, config.SECRET);
-            console.log('Clave secreta:', config.SECRET);
-            console.log("TOKEN NUMERO dos!!!!", token)
             res.status(200).redirect(`/recupero02.html?token=${token}`);
         } catch (error) {
             res.status(400).redirect(`/recupero01.html?mensaje=token invalido o expirado`);
@@ -64,9 +59,6 @@ export default class RecuperoController{
 
     static recupero03 = async (req, res) => {
         const { token, password, password2 } = req.body;
-
-        console.log('Token recibido en recupero03:', token);
-        console.log('Passwords recibidas:', { password, password2 });
 
         if (!token || !password || !password2) {
             return res.status(400).send('Faltan datos en la solicitud');
@@ -78,21 +70,16 @@ export default class RecuperoController{
 
         try {
             const decoded = jwt.verify(token, config.SECRET);
-            console.log('Email verificado en recupero03:', decoded.email);
             const user = await usuariosDAO.getBy({ email: decoded.email });
 
             if (!user) {
                 return res.status(400).send('Usuario no encontrado');
             }
 
-            console.log('Usuario encontrado:', user);
-
             const salt = bcrypt.genSaltSync(10);
             const hashedPassword = bcrypt.hashSync(password, salt);
-            console.log('Contraseña hasheada:', hashedPassword);
 
             const updatedUser = await usuariosDAO.update(user._id, { password: hashedPassword });
-            console.log('Usuario actualizado:', updatedUser);
 
             res.status(200).redirect(`/login?mensaje=Contraseña actualizada con exito`);
         } catch (error) {

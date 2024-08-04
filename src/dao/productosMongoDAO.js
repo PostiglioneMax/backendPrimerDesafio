@@ -3,7 +3,6 @@ import modeloProduct from "./models/product.modelo.js"
 
 export class ProductosMongoDAO{
 
-//READ
     async getAllProducts(filtro={}){
         return await modeloProduct.find(filtro).lean() 
     }

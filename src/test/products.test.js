@@ -14,11 +14,11 @@ describe('Products API', () => {
     const res = await request(app)
       .post('/api/sessions/login')
       .send({
-        email: 'kauff@test.com', // Reemplaza con tus credenciales
+        email: 'kauff@test.com',
         password: '123'
       });
 
-    authCookie = res.headers['set-cookie'][0]; // Guardar la cookie de autenticación
+    authCookie = res.headers['set-cookie'][0]; 
   });
 
   after(async () => {

@@ -64,7 +64,6 @@ class ProductosFsDAO {
     return products.find(product => product._id === productId);
   }
 
-  // UPDATE
   async updateOneProduct(pid, updatedFields) {
     const products = await this._readFile();
     const index = products.findIndex(product => product._id === pid);
@@ -77,7 +76,7 @@ class ProductosFsDAO {
 
   async addProduct(producto) {
     const products = await this._readFile();
-    const newProduct = { ...producto, _id: Date.now().toString() }; // Generar un ID único simple
+    const newProduct = { ...producto, _id: Date.now().toString() };
     products.push(newProduct);
     await this._writeFile(products);
     return newProduct;

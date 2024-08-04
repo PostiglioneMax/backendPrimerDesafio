@@ -13,16 +13,15 @@ describe('Carts API', () => {
   before(async () => {
     await connectDB();
     
-    // Realizar la solicitud de inicio de sesión y obtener la cookie de autenticación
     const loginRes = await request(app)
       .post('/api/sessions/login')
       .send({
-        email: 'kauff@test.com', // Reemplaza con tus credenciales
+        email: 'kauff@test.com',
         password: '123'
       });
     
-    authCookie = loginRes.headers['set-cookie'][0]; // Guardar la cookie de autenticación
-    
+    authCookie = loginRes.headers['set-cookie'][0];
+
     const res = await request(app)
       .post('/api/products/addProduct')
       .set('Cookie', authCookie)
@@ -34,7 +33,7 @@ describe('Carts API', () => {
         stock: 100
       });
     
-    productId = res.body.payload._id;  // Ajuste aquí para asegurar que res.body.payload tenga _id
+    productId = res.body.payload._id;
     console.log(productId)
   });
 
