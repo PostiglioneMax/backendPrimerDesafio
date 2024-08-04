@@ -64,7 +64,7 @@ router.get("/product/:pid", ProductosController.getProductById, (req,res)=>{
     res.status(200).render('detalle', {isAuthenticated, usuario})
 });
 
-router.post("/products/:pid/add-to-cart", passportCall("jwt"), auth(["user", "premium"]), ProductosController.ProductIdAddToCart)
+router.post("/products/:pid/add-to-cart", passportCall("jwt"), auth(["user", "premium", "admin"]), ProductosController.ProductIdAddToCart)
 
 router.get('/cart/:cartId', async (req, res) => {
   try {
